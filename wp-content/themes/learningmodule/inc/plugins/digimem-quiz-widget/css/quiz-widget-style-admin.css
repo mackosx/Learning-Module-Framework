@@ -1,0 +1,11 @@
+.saved-quiz{
+    background: lightgreen;
+    border-radius: 2px;
+    text-align: center;
+    padding: 0.5em;
+    color: black;
+    position: absolute;
+    bottom: 2.3em;
+    left: 8em;
+    right: auto;
+}

@@ -1,0 +1,39 @@
+.button-primary.add-button{
+    border-radius: 15px;
+    width: 30px;
+    padding: 0 1px 0 0;
+    outline: 0;
+
+}
+.add-button span{
+    line-height: 28px;
+}
+
+.classification-images-group > img, .classification-images-group > label{
+    width:50px;
+
+
+
+}
+.classification-images-group {
+    display: inline;
+}
+.add-images-button{
+}
+input[type='hidden']{
+    display: none;
+}
+.saved{
+    background: lightgreen;
+    border-radius: 2px;
+    text-align: center;
+    padding: 0.5em;
+    color: black;
+    position: absolute;
+    bottom: 3.35em;
+    left: 8em;
+    right: auto;
+}
+.classification-widget{
+    position: relative;
+}
