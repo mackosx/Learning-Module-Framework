@@ -371,6 +371,9 @@ function learningmodule_scripts() {
 	/* Createjs suite for game creation and canvas element interaction*/
 	wp_enqueue_script( 'createjs', get_theme_file_uri( '/inc/plugins/digimem-classification-game-widget/js/createjs-2015.11.26.min.js' ), array( 'jquery' ) );
 
+	/* Fabricjs for montage creation widget */
+	wp_enqueue_script( 'fabricjs', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/js/fabric.min.js' ), array( 'jquery' ), false, false );
+
 	/*
 	 * Quiz Widget Scripts and Styles
 	 */
@@ -392,6 +395,12 @@ function learningmodule_scripts() {
 		false,
 		false
 	);
+
+	/*
+     * Montage Widget Scripts and Styles
+     */
+	wp_enqueue_style( 'digimem-montage-style', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/css/montage-widget-public.css' ), array() );
+
 
 }
 
@@ -437,6 +446,13 @@ function learning_module_admin_scripts() {
 	 * Quiz Widget Scripts
 	 */
 	wp_enqueue_style( 'digimem-quiz-widget-admin', get_theme_file_uri( '/inc/plugins/digimem-quiz-widget/css/quiz-widget-style-admin.css' ), array() );
+
+	/*
+	 * Montage Scripts
+	 */
+	wp_enqueue_script( 'digimem-montage-widget', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/js/montage-widget.js' ), array( 'jquery' ) );
+
+	wp_enqueue_style( 'digimem-montage-style-admin', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/css/montage-widget.css' ), array() );
 
 }
 
@@ -581,16 +597,7 @@ function add_ajax_actions($actions = array(), $nopriv = false){
 require_once( get_theme_file_path( '/inc/plugins/digimem-interactive-video-widget/interactive-video.php' ) );
 require_once( get_theme_file_path( '/inc/plugins/digimem-quiz-widget/quiz-widget.php' ) );
 require_once( get_theme_file_path( '/inc/plugins/digimem-classification-game-widget/classification-game-widget.php' ) );
-
-
-//function badge_menu(){
-//    add_menu_page('Badges', 'Badges', 'manage_options', 'badge-menu', 'badge_collection', 'dashicons-shield-alt', 26);
-//    add_submenu_page('badge-menu', 'Badges', 'Badges Collection', 'manage_options', 'badge-menu', 'badge_collection' );
-//	add_submenu_page('badge-menu', 'Issuer', 'Issuer Profile', 'manage_options', 'issuer', 'issuer_options');
-//	add_submenu_page('badge-menu', 'Add New', 'Add New', 'manage_options', 'issuer', 'add_new_badge');
-//
-//}
-//add_action('admin_menu', 'badge_menu');
+require_once( get_theme_file_path( '/inc/plugins/digimem-montage-widget/montage-widget.php' ) );
 
 function badge_collection(){
 	if ( !current_user_can( 'manage_options' ) )  {

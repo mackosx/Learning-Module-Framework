@@ -1,0 +1,45 @@
+.montage{
+    border: 1px solid grey;
+}
+.canvas-container{
+    vertical-align: top;
+    display: inline-block;
+}
+.montage-text{
+    float:left;
+    width: 300px;
+}
+input[type='color']{
+    padding: 0.1em 0.35em;
+    width: 5em;
+    height: 2.5em;
+}
+input[type='range']{
+    width: 10em;
+}
+.montage-widget button{
+    background-color: lightgrey;
+    color: black;
+    padding: 0.5em;
+}
+.montage-widget button:hover{
+    background-color: green;
+    transition: 0.5s;
+}
+.montage-controls input, .montage-controls button{
+    display: inline-block;
+    margin-right: 0.5em;
+    vertical-align: top;
+}
+.montage-controls{
+    margin-bottom: 0.5em;
+}
+.montage-drawing-area{
+}
+.montage-images img{
+    display: inline-block;
+    height: 100px;
+    margin-right: 0.5em;
+}
+.montage-images{
+}
