@@ -1564,3 +1564,4 @@ Stack trace:
 #8 C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\front-page.php(50): get_footer()
 #9 C:\xampp\htdocs\wordpress\wp-includes in C:\xampp\htdocs\wordpress\wp-content\plugins\wprpg\wprpg-class.php on line 116
 [29-Jun-2017 19:58:11 UTC] PHP Notice:  Undefined index: isCorrect in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-quiz-widget\quiz-widget-ajax-functions.php on line 32
+[29-Jun-2017 22:01:52 UTC] WordPress database error Unknown table 'wordpress.wp_rpg_race' for query DROP TABLE `wp_rpg_race` made by do_action('wp_ajax_delete-plugin'), WP_Hook->do_action, WP_Hook->apply_filters, wp_ajax_delete_plugin, delete_plugins, uninstall_plugin, include('C:\xampp\htdocs\wordpress\wp-content\plugins\wprpg\uninstall.php')
