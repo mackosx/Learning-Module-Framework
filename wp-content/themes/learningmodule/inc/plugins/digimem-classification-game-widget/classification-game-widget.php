@@ -42,7 +42,7 @@ class Classification_Game_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		?>
         <div class="classification-game-widget" id="<?= $this->get_field_id( 'container' ) ?>">
-            <button class="button play-classification-game" type="button" onclick="showGame(<?= $this->number ?>)">Play
+            <button class="button play-classification-game" type="button" onclick="showClassificationGame(<?= $this->number ?>)">Play
                 Game
             </button>
             <canvas style="display:none;" class="classification-game" id="myCanvas-<?= $this->number ?>" width="900"
@@ -131,7 +131,7 @@ class Classification_Game_Widget extends WP_Widget {
                     </div>
                     <br/>
                     <button type="button" class="add-images-button button wp-media-buttons"
-                            onclick="uploadMedia('<?= $this->get_field_id( $cat . '-images' ) ?>', <?= $this->number ?>, '<?= $this->id_base ?>', <?= $i + 1 ?>)">
+                            onclick="uploadMediaGame('<?= $this->get_field_id( $cat . '-images' ) ?>', <?= $this->number ?>, '<?= $this->id_base ?>', <?= $i + 1 ?>)">
                         Select Images
                     </button>
                     <br/>
@@ -172,3 +172,5 @@ function register_game_classification_widget() {
 }
 
 add_action( 'widgets_init', 'register_game_classification_widget' );
+
+require 'classification-game-ajax-functions.php';

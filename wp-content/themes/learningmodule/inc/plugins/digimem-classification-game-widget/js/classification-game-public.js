@@ -14,7 +14,7 @@
 
     let score = 0;
     let max;
-
+    const FONT = 'Helvetica';
     let gameOverScreen;
 
     let images = [];
@@ -44,7 +44,7 @@
         // display the categories and boxes
         addCategories();
 
-        let submit = createButton("Submit", (STAGE_WIDTH / 2),  STAGE_HEIGHT - 40, 100, 50, checkScore);
+        let submit = createButton("Submit", (STAGE_WIDTH / 2),  STAGE_HEIGHT - 40, 90, 50, checkScore);
         stage.addChild(submit);
         // set up tick event to update
         createjs.Ticker.setFPS(30);
@@ -53,7 +53,7 @@
     function addBackground(){
         let bg = new createjs.Shape();
         bg.graphics
-            .beginLinearGradientFill(["#ffa5eb", "#75c7ff"],[0,1],STAGE_HEIGHT,0,STAGE_WIDTH-STAGE_HEIGHT,STAGE_HEIGHT)
+            .beginFill('#808080')
             .drawRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
         stage.addChild(bg);
     }
@@ -76,9 +76,9 @@
         stage.addChild(gameOverScreen);
         let bg = new createjs.Shape();
         gameOverScreen.addChild(bg);
-        bg.graphics.beginFill('white').drawRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
-        let endText = new createjs.Text('Game Over!', '100px Rockwell');
-        let scoreText = new createjs.Text('Score: ' + score + '/' + max, '100px Rockwell');
+        bg.graphics.beginFill('#808080').drawRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
+        let endText = new createjs.Text('Game Over!', '100px ' + FONT);
+        let scoreText = new createjs.Text('Score: ' + score + '/' + max, '100px ' + FONT);
         endText.textAlign = scoreText.textAlign = 'center';
         endText.textBaseline = scoreText.textBaseline = 'middle';
         gameOverScreen.addChild(endText, scoreText);
@@ -98,22 +98,20 @@
     }
 
     function createButton(buttonText, x, y, width, height, onclick) {
-        let btnCorner = 20;
+        let btnCorner = 3;
         // initialize container and set location
         let btn = new createjs.Container();
         btn.width = width;
         btn.height = height;
         btn.regX = width/ 2;
         btn.regY = height/ 2;
-        let text = new createjs.Text(buttonText, '20px Rockwell', 'white');
+        let text = new createjs.Text(buttonText, 'bold 20px ' + FONT, 'black');
         // draw button
         let btnBg = new createjs.Shape();
         btn.addChild(btnBg);
         btn.addChild(text);
         btnBg.graphics
-            .setStrokeStyle(1)
-            .beginStroke("black")
-            .beginLinearGradientFill(["#609dff", "#003ea3"],[0,1],0,0,0,btn.height)
+            .beginFill('#d3d3d3')
             .drawRoundRect(0, 0, btn.width, btn.height, btnCorner);
         // add items to button container
 
@@ -124,9 +122,7 @@
             btn.cursor = 'pointer';
             btnBg.graphics.clear();
             btnBg.graphics
-                .setStrokeStyle(2)
-                .beginStroke("black")
-                .beginFill("blue")
+                .beginFill("white")
                 .drawRoundRect(0, 0, btn.width, btn.height, btnCorner);
         });
         // remove color on mouse out
@@ -134,9 +130,7 @@
             btn.cursor = 'pointer';
             btnBg.graphics.clear();
             btnBg.graphics
-                .setStrokeStyle(1)
-                .beginStroke("black")
-                .beginLinearGradientFill(["#609dff", "#003ea3"],[0,1],0,0,0,btn.height)
+                .beginFill('#d3d3d3')
                 .drawRoundRect(0, 0, btn.width, btn.height, btnCorner);
         });
 
@@ -173,6 +167,8 @@
 
 // converts images into bitmap objects and adds them to stage
     function handleImageLoad(event) {
+        let boxMouseOverBorderColor = 'white';
+        let boxClickBorderColor = 'red';
         let size = 100;
         // random placement of images
         let x = Math.floor((Math.random() * STAGE_WIDTH));
@@ -181,7 +177,7 @@
 
         let bmp = new createjs.Bitmap(image);
         // set uniform image size and random placement
-        bmp.snapToPixel = true;
+        bmp.snapToPixel = false;
         bmp.scaleX = size / image.width;
         bmp.scaleY = size / image.height;
         bmp.x = x;
@@ -193,8 +189,8 @@
         bmp.on('mousedown', function(){
             bmp.mask.graphics.clear();
             bmp.mask.graphics
-                .setStrokeStyle(5.5)
-                .beginStroke('green')
+                .setStrokeStyle(1)
+                .beginStroke(boxClickBorderColor)
                 .drawRect(bmp.x-50, bmp.y-50, 100, 100);
         });
         bmp.mask = new createjs.Shape();
@@ -205,8 +201,8 @@
             bmp.cursor = 'pointer';
             bmp.mask.graphics.clear();
             bmp.mask.graphics
-                .setStrokeStyle(5.5)
-                .beginStroke('black')
+                .setStrokeStyle(1)
+                .beginStroke(boxMouseOverBorderColor)
                 .drawRect(bmp.x-50, bmp.y-50, size, size);
             stage.addChild(bmp.mask);
             bmp.mask.graphics.beginStroke('black');
@@ -229,17 +225,18 @@
 
 // handles the click and drag functionality
     function dragHandler(e) {
+        let boxDragBorderColor = "red";
         e.target.x = e.stageX;
         e.target.y = e.stageY;
         e.target.setBounds(e.target.x, e.target.y, e.target.width, e.target.width);
         for (let i = 0; i < catBoxes.length; i++) {
 
             if (intersects(e.target, catBoxes[i])) {
-                if (!catBoxes[i].isGreen)
-                    catBoxes[i].showGreen();
+                if (!catBoxes[i].withinBounds)
+                    catBoxes[i].highlightBounds();
 
             } else {
-                if (catBoxes[i].isGreen)
+                if (catBoxes[i].withinBounds)
                     catBoxes[i].removeBox();
             }
         }
@@ -247,15 +244,16 @@
         stage.enableMouseOver(0);
         e.target.mask.graphics.clear();
         e.target.mask.graphics
-            .setStrokeStyle(4)
-            .beginStroke('green')
+            .setStrokeStyle(1)
+            .beginStroke(boxDragBorderColor)
             .drawRect(e.target.x-50, e.target.y-50, 100, 100);
         stage.setChildIndex(e.target.mask, stage.getNumChildren() - 1);
 
     }
     function releaseHandler(e) {
+        let boxHoverBorderColor = "white";
         for (let i = 0; i < catBoxes.length; i++) {
-            if (catBoxes[i].isGreen) {
+            if (catBoxes[i].withinBounds) {
                 catBoxes[i].removeBox();
             }
         }
@@ -263,8 +261,8 @@
         e.target.mask.y = 0;
         e.target.mask.graphics
             .clear()
-            .setStrokeStyle(4)
-            .beginStroke('black')
+            .setStrokeStyle(1)
+            .beginStroke(boxHoverBorderColor)
             .drawRect(e.target.x-50, e.target.y-50, 100, 100);
         stage.enableMouseOver();
 
@@ -292,6 +290,7 @@
     }
 
     function addCategories() {
+        let boxColor = '#f8f7ed';
         let incr = (STAGE_WIDTH - 50) / categories.length;
         let catX = 50.5;
         let catY = 50.5;
@@ -301,7 +300,7 @@
 
             let catContainer = new createjs.Container;
             // draw category text
-            let cat = new createjs.Text(categories[i].name, "20px Rockwell", "#000000");
+            let cat = new createjs.Text(categories[i].name, "20px " + FONT, boxColor);
             cat.snapToPixel = true;
             cat.x = catX;
             cat.y = catY;
@@ -314,25 +313,25 @@
             catBoxes[i].width = boxWidth;
             catBoxes[i].height = boxHeight;
             let g = catBoxes[i].graphics;
-            g.beginStroke("#000")
+            g.beginStroke(boxColor)
                 .setStrokeStyle(1)
                 .drawRect(0, 0, boxWidth, boxHeight);
             catBoxes[i].setBounds(catX - 10, catY - 10, boxWidth, boxHeight);
             catBoxes[i].category = i;
             // events for displaying green outline
-            catBoxes[i].showGreen = function () {
+            catBoxes[i].highlightBounds = function () {
                 let bounds = this.getBounds();
                 this.greenBox = new createjs.Shape();
                 this.greenBox.graphics
-                    .beginStroke("#1e9922")
-                    .setStrokeStyle(3)
+                    .beginStroke("red")
+                    .setStrokeStyle(1)
                     .drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
                 stage.addChild(this.greenBox);
-                this.isGreen = true;
+                this.withinBounds = true;
             };
             catBoxes[i].removeBox = function () {
                 stage.removeChild(this.greenBox);
-                this.isGreen = false;
+                this.withinBounds = false;
             };
             stage.addChild(cat, catBoxes[i]);
 
@@ -356,3 +355,12 @@
 
     jQuery(document).onload = init();
 }(jQuery));
+function showClassificationGame(wid) {
+    let cvs = jQuery(`#myCanvas-${wid}`);
+    cvs.show({
+        duration: 1000,
+        easing: 'linear'
+
+    });
+    cvs.parent().children('button').hide();
+}

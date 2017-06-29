@@ -65,7 +65,7 @@ function deleteCategory(wid, cat) {
 
 
 }
-function uploadMedia(groupId, wid, idBase, catNum) {
+function uploadMediaGame(groupId, wid, idBase, catNum) {
     // Extend the wp.media object
     mediaUploader = wp.media.frames.file_frame = wp.media({
         title: 'Select Images',
@@ -84,7 +84,6 @@ function uploadMedia(groupId, wid, idBase, catNum) {
         let length = mediaUploader.state().get('selection').length;
         let imgCount = 0;
         let groupDiv = jQuery(`#${groupId}`);
-        console.log(groupDiv);
 
         groupDiv.children('input, img').remove();
         for (let i = 0; i < length; i++) {

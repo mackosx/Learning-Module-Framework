@@ -92,7 +92,7 @@ function get_question_form() {
               class="quiz-<?= $quizId ?>-question-<?= $questionCount ?>-form">
 
 			<?php get_question_table( 'Add Question', $quizId, $questionCount, array() ) ?>
-
+<?php// Submits the form for the question ?>
             <input class="button" type="submit" value="Add and Continue"/>
             <button type="button" class="button"
                     onclick="finishQuiz(<?= $widgetId ?>, <?= $quizId ?>, <?= $questionCount ?>)">Finish

@@ -140,7 +140,7 @@ function deleteQuizCallback(widgetId, callback) {
 // sets the selected quiz to be displayed with the video
 function setActiveQuiz(widgetId) {
     let quizId = jQuery(`#quiz-select-${widgetId}`).val();
-    if(quizId) {
+    if (quizId) {
         jQuery.ajax({
             type: "POST",
             url: videoUpload.ajaxUrl,
@@ -154,7 +154,7 @@ function setActiveQuiz(widgetId) {
                 let activeMsg = jQuery(data);
                 jQuery(`#widget-${widgetId}-active-msg`).remove();
                 jQuery(`#quiz-select-${widgetId}`).parent().parent().append(activeMsg);
-                activeMsg.delay(3000).fadeOut(1500, function(){
+                activeMsg.delay(3000).fadeOut(1500, function () {
                     jQuery(this).remove();
                 })
 
@@ -227,7 +227,7 @@ function createQuiz(widgetId, callback) {
 }
 
 // stores a new question into the db
-function insertQuestion(formData, widgetId, quizId, questionNumber) {
+function insertQuestion(formData, widgetId, quizId, questionNumber, callback) {
     jQuery.ajax({
         type: 'post',
         url: videoUpload.ajaxUrl,
@@ -241,6 +241,7 @@ function insertQuestion(formData, widgetId, quizId, questionNumber) {
         },
         success: function (data) {
             // jQuery(`.widget-${widgetId}`).append(data);
+            callback();
         }
     })
 
@@ -265,18 +266,18 @@ function getQuestionForm(quizId, widgetId) {
                 // hide the buttons
                 let titleArea = jQuery(`#quiz-${quizId}-title-area`).hide('fast');
                 titleArea.remove();
-                /* add the question form */
                 jQuery('form[id*=quiz]').remove();
                 jQuery(`#widget-${widgetId}-active-msg`).remove();
 
-                // animate the question form display
+                /* add the question form */
                 let questionForm = jQuery(data).hide();
                 // insert the question adding form before the text area checkbox
                 jQuery(`#widget-${widgetId}-text-area`).before(questionForm);
-
+                // animate the question form display
                 questionForm.show(400);
 
                 let questionNumber = parseInt(jQuery(`#quiz-${quizId}-question-number`).val());
+                console.log(questionNumber);
                 let baseId = 'quiz-' + quizId + '-question-' + questionNumber;
                 let video = jQuery(`#widget-interactive-${widgetId}-video`);
                 let timeBox = jQuery(`.quiz-${quizId}-question-${questionNumber}-form #${baseId}-time`);
@@ -300,8 +301,11 @@ function getQuestionForm(quizId, widgetId) {
                     } else if (jQuery(`#${baseId}-${correctAnswer}`).val() == '') {
                         alert("The correct answer must not be blank.");
                     } else {
-                        insertQuestion(jQuery(this).serialize(), widgetId, quizId, questionNumber);
-                        getQuestionForm(quizId, widgetId);
+                        // Insert question, then output question form as callback
+                        insertQuestion(jQuery(this).serialize(), widgetId, quizId, questionNumber,
+                            function () {
+                                getQuestionForm(quizId, widgetId)
+                            });
                     }
                     //trigger the next question
                 })

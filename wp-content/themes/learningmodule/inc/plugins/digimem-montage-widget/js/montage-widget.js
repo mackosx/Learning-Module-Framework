@@ -23,7 +23,6 @@ function uploadMedia( wid, idBase) {
         let length = mediaUploader.state().get('selection').length;
         let imgCount = 0;
         let groupDiv = jQuery(`#${base}images`);
-        console.log(base + 'images');
 
         groupDiv.children('input, img').remove();
         for (let i = 0; i < length; i++) {
