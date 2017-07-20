@@ -40,7 +40,7 @@ class Interactive_Video_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', empty( $instance['title'] ) ? '' : $instance['title'], $instance, $this->id_base );
 
 		$widget_url = ! empty( $instance['url'] ) ? $instance['url'] : '';
-		$addText  = isset( $instance['addText']) ? $instance['addText'] : false;
+		$addText    = isset( $instance['addText'] ) ? $instance['addText'] : false;
 
 
 		//active quiz
@@ -86,11 +86,11 @@ class Interactive_Video_Widget extends WP_Widget {
 			if ( $hasQuiz ) {
 				?>
                 <script>
-                    jQuery(document).ready(function () {
-                        attachVideoListener(<?=$this->number?>, <?=$activeQuizId?>);
+					jQuery(document).ready(function () {
+						attachVideoListener(<?=$this->number?>, <?=$activeQuizId?>);
 
 
-                    })
+					})
                 </script>
 				<?php
 			}
@@ -144,11 +144,33 @@ class Interactive_Video_Widget extends WP_Widget {
 
 		global $wpdb;
 
+
+		wp_enqueue_style(
+			'video-style',
+			get_theme_file_uri( '/inc/plugins/digimem-interactive-video-widget/css/interactive-video-style.css' ),
+			array(),
+			false,
+			false
+		);
+		wp_enqueue_script(
+			'digimem-interactive-video-admin',
+			get_theme_file_uri( '/inc/plugins/digimem-interactive-video-widget/js/interactive-video.js' ),
+			array( 'jquery' ),
+			false,
+			true
+		);
+		wp_localize_script(
+			"digimem-interactive-video-admin",
+			"videoUpload",
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' )
+			)
+		);
 		$title    = isset( $instance['title'] ) ? $instance['title'] : '';
 		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'url' => '', 'id' => '' ) );
 		$title    = sanitize_text_field( $instance['title'] );
-        $addText  = isset( $instance['addText']) ? $instance['addText'] : '';
-		$textBox  = isset( $instance['text-box']) ? $instance['text-box'] : '';
+		$addText  = isset( $instance['addText'] ) ? $instance['addText'] : '';
+		$textBox  = isset( $instance['text-box'] ) ? $instance['text-box'] : '';
 
 		$urlId   = $this->get_field_id( 'url' );
 		$videoId = $this->get_field_id( 'video' );
@@ -181,34 +203,35 @@ class Interactive_Video_Widget extends WP_Widget {
                name="<?php echo $this->get_field_name( 'url' ); ?>"
                value="<?php echo $instance['url']; ?>"
         />
-<?php
-        if(isset($instance['url']) && $instance['url'] != ''){
-            ?>
+		<?php
+		if ( isset( $instance['url'] ) && $instance['url'] != '' ) {
+			?>
             <video
                     id="<?php echo $this->get_field_id( 'video' ) ?>"
                     width='640'
                     height='240'
                     controls
                     controlsList='nodownload'
-                    src="<?=$instance['url']?>"
+                    src="<?= $instance['url'] ?>"
             >
             </video>
-            <?php
-        }
-        ?>
-
+			<?php
+		}
+		?>
 
 
         <br/>
         <div id="widget-<?= $this->number ?>-edit-buttons">
 
             <script>
-                if(typeof getEditButtons == 'function'){
-                    getEditButtons("<?=$this->number?>", '<?php echo isset($instance['url']) & $instance['url']!== '' ? 'true':  'false'?>')
-                }
-                jQuery(document).ready(function () {
-                    getEditButtons("<?=$this->number?>", '<?php echo isset($instance['url']) & $instance['url']!=='' ? 'true':  'false'?>');
-                });
+				if (typeof getEditButtons == 'function') {
+					getEditButtons("<?=$this->number?>", '<?php echo isset( $instance['url'] ) & $instance['url'] !== '' ? 'true' : 'false'?>');
+				}
+				jQuery(document).ready(function () {
+					if (typeof getEditButtons == 'function') {
+						getEditButtons("<?=$this->number?>", '<?php echo isset( $instance['url'] ) & $instance['url'] !== '' ? 'true' : 'false'?>');
+					}
+				});
             </script>
         </div>
         <div id="quiz-edit-<?= $this->number ?>">
@@ -224,11 +247,11 @@ class Interactive_Video_Widget extends WP_Widget {
             <textarea id="<?= $this->get_field_id( 'text-box' ) ?>" class="widefat"
                       name="<?= $this->get_field_name( 'text-box' ) ?>" <?php if ( $addText != 'true' ) {
 				echo 'style="display: none"';
-			} ?>><?= esc_attr( $textBox  ) ?></textarea>
+			} ?>><?= esc_attr( $textBox ) ?></textarea>
         </div>
 
-        <?php
-        echo "</div>";
+		<?php
+		echo "</div>";
 	}
 
 }
@@ -288,6 +311,6 @@ function create_video_table() {
 	dbDelta( array( $sql3 ) );
 
 
-
 }
+
 require 'interactive-video-ajax-functions.php';

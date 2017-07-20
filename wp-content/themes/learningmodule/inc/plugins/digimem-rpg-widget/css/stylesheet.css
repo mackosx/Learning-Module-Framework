@@ -1,0 +1,255 @@
+.passage-item{
+    position: absolute;
+    height: 7em;
+    width: 7em;
+    cursor: pointer;
+    background-color: #333333;
+    color: lightgrey;
+    border-radius: 1px;
+    padding: 2px;
+    z-index: 1;
+    border: none;
+}
+.passage-item .passage-content{
+    overflow: hidden;
+    height: inherit;
+    width: inherit;
+}
+.passage-item .passage-start{
+    position: absolute;
+    top: -1em;
+    right: -1em;
+    height: 2em;
+    width: 2em;
+    border-radius: 1em;
+    color: black;
+    background-color: white;
+    z-index: 1;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 2em;
+}
+.passage-item h2{
+    font-size: 1.2em;
+    color: white;
+    margin: 0;
+}
+.passage-item p{
+    color: inherit;
+    margin-top: 0.15em;
+}
+.passage-item .passage-value{
+    position: absolute;
+    bottom: -1em;
+    right: -1em;
+    height: 2em;
+    width: 2em;
+    border-radius: 1em;
+    color: black;
+    background-color: white;
+    z-index: 1;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 2em;
+}
+#container{
+    margin-bottom: 2em;
+    width: 99%;
+    height: 600px;
+}
+input, textarea{
+    border: none;
+    border-radius: 1px;
+    padding: 2px;
+}
+#main{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border: 1px solid black;
+    background: #0e131e;
+}
+.information-sidebar{
+    color: aqua;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20%;
+    height: calc(100% - 4em);
+    background-color: #4b4b4b;
+    box-shadow: 5px 1px 8px #333333 inset;
+    min-width: 130px;
+    z-index: 2;
+}
+.information-sidebar .info{
+    padding: 1em;
+}
+.toolbar{
+    z-index: 3;
+    position: absolute;
+    bottom: 0;
+    height: 6em;
+    width: 100%;
+    background-color: #e0e0e0;
+}
+.toolbar-tools{
+    /*padding: 1em;*/
+}
+.information-sidebar input,
+.information-sidebar textarea{
+    width: 100%;
+    resize: vertical;
+    max-height: 300px;
+}
+#add-passage-btn {
+    background-color: #00ee00;
+    color: white;
+    border: none;
+    height: 1.5em;
+    width: 1.5em;
+    font-size: 4em;
+    outline: none;
+
+    padding: 0 0 0.5em;
+}
+#add-passage-btn:hover{
+    background-color: lightgreen;
+    cursor: pointer;
+}
+#passage-editor-container{
+    position: absolute;
+    left:0;
+    right:0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    max-height: 80%;
+    width: 50%;
+    z-index: 3;
+}
+#passage-editor{
+    position: relative;
+    color: white;
+    height: auto;
+    padding: 2em;
+    background-color: rgba(29, 31, 33, 0.85);
+}
+#weight-input{
+    width: 3em;
+}
+#passage-editor input[type='text'],
+#passage-editor textarea{
+    width: 95%;
+    border: none;
+    padding: 2px;
+    font-size: inherit;
+}
+#passage-editor textarea{
+    height: 10em;
+}
+#passage-editor h3{
+    margin-top: 0;
+    color: inherit;
+}
+
+.close-editor{
+    font-size: 1em;
+    background-color: #1d1f21;
+    border: 0;
+    color: inherit;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 2em;
+    width: 2em;
+    line-height: 2em;
+    vertical-align: middle;
+
+}
+.close-editor:hover{
+    background-color: #3e4244;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+#line{
+    height: 150px;
+    width: 0;
+    border: 1px solid black;
+}
+html{
+    font-family: 'Helvetica', sans-serif;
+}
+.current-parents,
+.current-children{
+    display: inline-block;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.remove-link{
+    border-radius: 10px;
+    display: inline-block;
+    background-color: #81a2be;
+    padding: 5px;
+    height: 1em;
+    margin-right: 0.1em;
+    margin-top: 0.2em;
+
+}
+.remove-link:hover{
+    cursor: pointer;
+
+}
+.remove-link:hover i{
+    color: red;
+
+
+}
+#child-editor{
+    display: inline-block;
+    margin-top: 2em;
+
+}
+#child-editor *{
+    vertical-align: top;
+}
+.current-children{
+   display: block;
+}
+/* Enter and leave animations can use different */
+/* durations and timing functions.              */
+.showEditor-enter-active {
+    transition: all .3s ease;
+}
+.showEditor-leave-active {
+    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.showEditor-enter, .showEditor-leave-to
+    /* .slide-fade-leave-active for <2.1.8 */ {
+    transform: translateX(10px);
+    opacity: 0;
+}
+.passage-options{
+    position: absolute;
+    bottom: -1.2em;
+    left: 0.5em;
+    text-align: center;
+    height: 1.2em;
+    width: auto;
+    font-size: 2em;
+    color: lightgrey;
+    background-color: #333333;
+    vertical-align: middle;
+    line-height: 1.2em;
+    border-bottom-left-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+    padding: 0 0.25em 0 0.25em;
+}
+.passage-options > div{
+    display: inline-block;
+    font-size: inherit;
+}
+.passage-options > div:hover{
+    color: aqua;
+}

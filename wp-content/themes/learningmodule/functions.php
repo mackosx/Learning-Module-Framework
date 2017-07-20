@@ -365,6 +365,8 @@ function learningmodule_scripts() {
 	/*
 	 * ASSETS FOR WIDGETS
 	 */
+	//font awesome
+
 	/* Priority queue for interactive video*/
 	wp_enqueue_script( 'priority-queue', get_theme_file_uri( '/assets/js/priority-queue.js' ) );
 
@@ -380,8 +382,6 @@ function learningmodule_scripts() {
 	wp_enqueue_script( 'digimem-quiz-widget', get_theme_file_uri( '/inc/plugins/digimem-quiz-widget/js/quiz-widget.js' ), array( 'jquery' ), '1.0' );
 	wp_enqueue_style( 'digimem-quiz-widget-style', get_theme_file_uri( '/inc/plugins/digimem-quiz-widget/css/quiz-widget-style-public.css' ), array() );
 	wp_localize_script( "digimem-quiz-widget", "quizAjax", array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) ) );
-
-
 
 	/*
 	 * Interactive Video Widget Scripts and Styles
@@ -400,6 +400,13 @@ function learningmodule_scripts() {
      * Montage Widget Scripts and Styles
      */
 	wp_enqueue_style( 'digimem-montage-style', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/css/montage-widget-public.css' ), array() );
+
+	/*
+	 * RPG Widget Scripts and Styles
+	 */
+
+	wp_enqueue_script( 'vue', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/vue.js' ), array(), '2.3.0', false );
+	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array(), false, false );
 
 
 }
@@ -421,27 +428,7 @@ function learning_module_admin_scripts() {
 	/*
 	 * Interactive Video Widget Admin Page Scripts and Styles for video creation and editing
 	 */
-	wp_enqueue_style(
-		'video-style',
-		get_theme_file_uri( '/inc/plugins/digimem-interactive-video-widget/css/interactive-video-style.css' ),
-		array(),
-		false,
-		false
-	);
-	wp_enqueue_script(
-		'digimem-interactive-video-admin',
-		get_theme_file_uri( '/inc/plugins/digimem-interactive-video-widget/js/interactive-video.js' ),
-		array( 'jquery' ),
-		false,
-		true
-	);
-	wp_localize_script(
-		"digimem-interactive-video-admin",
-		"videoUpload",
-		array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' )
-		)
-	);
+
 	/*
 	 * Quiz Widget Scripts
 	 */
@@ -451,8 +438,12 @@ function learning_module_admin_scripts() {
 	 * Montage Scripts
 	 */
 	wp_enqueue_script( 'digimem-montage-widget', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/js/montage-widget.js' ), array( 'jquery' ) );
-
 	wp_enqueue_style( 'digimem-montage-style-admin', get_theme_file_uri( '/inc/plugins/digimem-montage-widget/css/montage-widget.css' ), array() );
+
+	/*
+	 * RPG Widget Scripts and Styles
+	 */
+
 
 }
 
@@ -584,9 +575,9 @@ add_filter( 'learningmodule_front_page_sections', 'wpc_custom_front_sections' );
 /*
  * Helper function to add ajax actions to either admin or public hook
  */
-function add_ajax_actions($actions = array(), $nopriv = false){
-	$prefix = $nopriv ? 'wp_ajax_nopriv_': 'wp_ajax_';
-	foreach($actions as $action){
+function add_ajax_actions( $actions = array(), $nopriv = false ) {
+	$prefix = $nopriv ? 'wp_ajax_nopriv_' : 'wp_ajax_';
+	foreach ( $actions as $action ) {
 		add_action( $prefix . $action, $action );
 	}
 }
@@ -598,9 +589,14 @@ require_once( get_theme_file_path( '/inc/plugins/digimem-interactive-video-widge
 require_once( get_theme_file_path( '/inc/plugins/digimem-quiz-widget/quiz-widget.php' ) );
 require_once( get_theme_file_path( '/inc/plugins/digimem-classification-game-widget/classification-game-widget.php' ) );
 require_once( get_theme_file_path( '/inc/plugins/digimem-montage-widget/montage-widget.php' ) );
+require_once( get_theme_file_path( '/inc/plugins/digimem-rpg-widget/rpg-widget.php' ) );
 
-function badge_collection(){
-	if ( !current_user_can( 'manage_options' ) )  {
+
+/**
+ * Badging Section, UNUSED
+ */
+function badge_collection() {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	echo '<div class="wrap">';
@@ -608,55 +604,154 @@ function badge_collection(){
 	echo '<p>Display any badges that are offered</p>';
 	echo '</div>';
 }
-function issuer_options(){
-	if ( !current_user_can( 'manage_options' ) )  {
+
+function issuer_options() {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	echo '<div class="wrap">';
 	?>
 
     <form method="post" action="options.php">
-        <?php
-        settings_fields('issuer_profile_options');
-        do_settings_sections('badge_issuer_profile');
-        // Name, Type, Url, Email
-        ?>
-        <input name="Submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
+		<?php
+		settings_fields( 'issuer_profile_options' );
+		do_settings_sections( 'badge_issuer_profile' );
+		// Name, Type, Url, Email
+		?>
+        <input name="Submit" class="button button-primary" type="submit"
+               value="<?php esc_attr_e( 'Save Changes' ); ?>"/>
     </form>
 
 
-    <?php
+	<?php
 
 	echo '</div>';
 }
-add_action('admin_init', 'issuer_profile_admin_init' );
-function issuer_profile_admin_init(){
-	register_setting('issuer_profile_options', 'issuer_profile_options');
-	add_settings_section('issuer_profile','Issuer Profile Settings', 'issuer_profile_section_text', 'badge_issuer_profile');
-	add_settings_field('issuer-profile-name','Organization Name', 'name_input_setting', 'badge_issuer_profile', 'issuer_profile');
-	add_settings_field('issuer-profile-url','Organization URL', 'url_input_setting', 'badge_issuer_profile', 'issuer_profile');
-	add_settings_field('issuer-profile-email','Email', 'email_input_setting', 'badge_issuer_profile', 'issuer_profile');
+
+add_action( 'admin_init', 'issuer_profile_admin_init' );
+function issuer_profile_admin_init() {
+	register_setting( 'issuer_profile_options', 'issuer_profile_options' );
+	add_settings_section( 'issuer_profile', 'Issuer Profile Settings', 'issuer_profile_section_text', 'badge_issuer_profile' );
+	add_settings_field( 'issuer-profile-name', 'Organization Name', 'name_input_setting', 'badge_issuer_profile', 'issuer_profile' );
+	add_settings_field( 'issuer-profile-url', 'Organization URL', 'url_input_setting', 'badge_issuer_profile', 'issuer_profile' );
+	add_settings_field( 'issuer-profile-email', 'Email', 'email_input_setting', 'badge_issuer_profile', 'issuer_profile' );
 
 }
 
-function issuer_profile_section_text(){
-    echo '<p>Main desc of this section here.</p>';
+function issuer_profile_section_text() {
+	echo '<p>Main desc of this section here.</p>';
 }
 
-function name_input_setting(){
-	$options = get_option('issuer_profile_options');
+function name_input_setting() {
+	$options = get_option( 'issuer_profile_options' );
 	echo "<input placeholder='e.g. UBC' title='Name of the organization' id=\"issuer-profile-id\" name='issuer_profile_options[name]' size='40' type='text' value='{$options['name']}'/>";
 }
-function url_input_setting(){
-	$options = get_option('issuer_profile_options');
+
+function url_input_setting() {
+	$options = get_option( 'issuer_profile_options' );
 	echo "<input placeholder='e.g. http://www.example.org' title='Main website url of the organization' id=\"issuer-profile-id\" name='issuer_profile_options[url]' size='40' type='text' value='{$options['url']}'/>";
 }
-function email_input_setting(){
-	$options = get_option('issuer_profile_options');
+
+function email_input_setting() {
+	$options = get_option( 'issuer_profile_options' );
 	echo "<input placeholder='e.g. account@example.org' title='Issuing email' id=\"issuer-profile-id\" name='issuer_profile_options[email]' size='40' type='email' value='{$options['email']}'/>";
 }
 
 
-function add_new_badge(){
+function add_new_badge() {
 
+}
+
+
+function RPG_creator() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	wp_enqueue_script( 'vue', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/vue.js' ), array(), '2.3.0', false );
+	wp_enqueue_style( 'digimem-rpg-widget-admin-style', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/css/stylesheet.css' ) );
+	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array(), false, false );
+	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array( 'vue', 'adjacency-list' ), '1.0', true );
+	wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/e4527517d1.js' );
+	$data = get_option( 'rpg_options' );
+	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
+	?>
+    <h1>RPG Editor</h1>
+    <div id="container">
+        <div id="main">
+
+                <svg id="svg-grid" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
+                     style="position: absolute;">
+                    <defs>
+                        <pattern id="smallGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                            <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#00264c" stroke-width="0.75"/>
+                        </pattern>
+                        <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                            <rect width="160" height="160" fill="url(#smallGrid)"/>
+                            <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#00264c" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                </svg>
+            <div class="toolbar">
+                <div class="toolbar-tools">
+                    <button type="button" id="add-passage-btn" @click="addPassage">&#43;</button>
+                </div>
+            </div>
+            <div class="information-sidebar">
+                <div class="info">
+                    <label for="title">Title</label><br/>
+                    <input id="title" v-model="title"/>
+                    <label for="description">Description</label><br/>
+                    <textarea id="description" v-model="desc" placeholder="Story description..."></textarea>
+                </div>
+            </div>
+            <div class="passage-area">
+                <passages :show="showEditor" :passages="passages"></passages>
+            </div>
+            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"></editor>
+        </div>
+    </div>
+    <form method="post" action="options.php" id="save-rpg">
+		<?php
+		settings_fields( 'rpg_options_group' );
+		do_settings_sections( 'rpg_options_page' );
+		?>
+        <input name="Submit" id="save-rpg" class="button button-primary" type="submit"
+               value="<?php esc_attr_e( 'Save Changes' ); ?>"/>
+    </form>
+
+	<?php
+}
+
+/**
+ * Creates top level menu for RPG editor
+ */
+function RPG_menu() {
+	add_menu_page( 'RPG Creator', 'RPG Creator', 'manage_options', 'rpg', 'RPG_creator' );
+}
+
+add_action( 'admin_menu', 'RPG_menu' );
+/**
+ * Functions for Setting API
+ */
+function rpg_admin_settings_init() {
+	//Register in wp_options as rpg_options
+	add_settings_section( 'rpg_settings_section', 'RPG Data Section', 'rpg_data_callback', 'rpg_options_page' );
+	add_settings_field( 'rpg-stories', 'RPG data', 'hidden_data_input', 'rpg_options_page', 'rpg_settings_section' );
+	register_setting( 'rpg_options_group', 'rpg_options' );
+
+}
+
+add_action( 'admin_init', 'rpg_admin_settings_init' );
+/**
+ * Outputs hidden field that stores any stories created in the editor.
+ */
+function hidden_data_input() {
+	$options = get_option( 'rpg_options' );
+	echo "<input type='text' id='rpg-stories' name='rpg_options[data]' value='{$options['data']}'>";
+}
+
+function rpg_data_callback() {
+	echo '<p>Your settings will be saved automatically.</p>';
 }
