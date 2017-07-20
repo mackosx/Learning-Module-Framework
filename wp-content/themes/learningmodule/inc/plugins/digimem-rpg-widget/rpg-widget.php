@@ -50,7 +50,7 @@ class RPG_Widget extends WP_Widget {
         <div class="rpgwidget" id="<?= $this->get_field_id( 'container' ) ?>">
             <h2><?= $data['title']?></h2>
             <p><?=$data['desc']?></p>
-            <div id="<?=$this->get_field_id('story-area')?>">
+            <div class="story-area" id="<?=$this->get_field_id('story-area')?>">
                     <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages"></passage>
 
             </div>

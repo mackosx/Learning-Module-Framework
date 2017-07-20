@@ -27,3 +27,4 @@ let e = new Vue({
 		}
 	}
 });
+//TODO: Add transition effect to story display
