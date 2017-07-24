@@ -34,30 +34,35 @@ class RPG_Widget extends WP_Widget {
 
 		$options = get_option('rpg_options');
 		$data = json_decode($options['data'], true);
-		$passages = $data['objects'];
-		$edges = $data['edges'];
-		$vertices = $data['vertices'];
+		$passages = $data['data'];
 		$scoreTotal = 0;
 		$startPassage = null;
-		foreach($passages as $passage){
-		    if($passage['isStart'] == 'true'){
+		$foundStart = false;
+		foreach($passages['vertices'] as $passage){
+		    if($passage['data']['isStart'] == 'true'){
 		        $startPassage = $passage;
+		        $foundStart = true;
 		        break;
             }
         }
 		echo $args['before_widget'];
 		?>
         <div class="rpgwidget" id="<?= $this->get_field_id( 'container' ) ?>">
+            <div class="story-area" id="<?=$this->get_field_id('story-area')?>">
+
+            <?php if(!$foundStart) {
+	            echo '<p>No starting point was found for this story.</p>';
+            } else { ?>
             <h2><?= $data['title']?></h2>
             <p><?=$data['desc']?></p>
-            <div class="story-area" id="<?=$this->get_field_id('story-area')?>">
-                    <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages"></passage>
+             <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages" :score="score"></passage>
 
-            </div>
+
+            <?php } ?>
         </div>
 
 		<?php
-		wp_localize_script('digimem-rpg-widget-display', 'data', array($this->get_field_id('story-area'), $startPassage, $data));
+		wp_localize_script('digimem-rpg-widget-display', 'data', array($this->get_field_id('story-area'), $startPassage, $passages));
 
 		echo $args['after_widget'];
 	}

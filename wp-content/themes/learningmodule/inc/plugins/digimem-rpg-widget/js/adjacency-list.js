@@ -2,7 +2,6 @@ class Node {
 	constructor(data) {
 		this.data = data;
 		this.edges = [];
-		this.numberOfEdges = 0;
 	}
 
 	addChild(id) {
@@ -10,7 +9,6 @@ class Node {
 		// Make sure node is not already pointed to id
 		if (index <= -1) {
 			this.edges.push(id);
-			this.numberOfEdges++;
 		}
 	}
 
@@ -18,8 +16,10 @@ class Node {
 		const index = this.edges.indexOf(id);
 		if (~index) {
 			this.edges.splice(index, 1);
-			this.numberOfEdges--;
 		}
+	}
+	numberOfEdges(){
+		return this.edges.length;
 	}
 }
 
@@ -35,6 +35,7 @@ class Digraph {
 	}
 
 	removeVertex(id) {
+		this.removeEdgesTo(id);
 		const index = this.getIndexOf(id);
 		if (~index) {
 			this.vertices.splice(index, 1);
@@ -145,8 +146,9 @@ class Digraph {
 	// }
 
 	compactToJSON(title, desc) {
+		console.log(this);
 		const s = {
-			vertices: this.vertices,
+			data: this,
 			title: title,
 			desc: desc
 		};
@@ -155,7 +157,12 @@ class Digraph {
 	}
 
 	importFromJSON(story) {
-		this.vertices = story.vertices;
+		for(let i = 0; i < story.data.vertices.length; i++){
+			let oldNode = story.data.vertices[i];
+			let newNode = new Node(oldNode.data);
+			newNode.edges = oldNode.edges;
+			this.vertices[i] = newNode;
+		}
 		console.log('Successfully imported previous story.')
 		return {
 			title: story.title,

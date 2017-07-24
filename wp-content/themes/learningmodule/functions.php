@@ -670,7 +670,7 @@ function RPG_creator() {
 	wp_enqueue_script( 'vue', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/vue.js' ), array(), '2.3.0', false );
 	wp_enqueue_style( 'digimem-rpg-widget-admin-style', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/css/stylesheet.css' ) );
 	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array(), false, false );
-	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array( 'vue', 'adjacency-list' ), '1.0', true );
+	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array( 'vue', 'adjacency-list', 'jquery' ), '1.0', true );
 	wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/e4527517d1.js' );
 	$data = get_option( 'rpg_options' );
 	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
@@ -678,7 +678,6 @@ function RPG_creator() {
     <h1>RPG Editor</h1>
     <div id="container">
         <div id="main">
-
                 <svg id="svg-grid" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
                      style="position: absolute;">
                     <defs>
@@ -706,9 +705,8 @@ function RPG_creator() {
                     <textarea id="description" v-model="desc" placeholder="Story description..."></textarea>
                 </div>
             </div>
-            <div class="passage-area">
-                <passages :show="showEditor" :passages="passages"></passages>
-            </div>
+            <passages :show="showEditor" :passages="passages"></passages>
+
             <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"></editor>
         </div>
     </div>
@@ -737,8 +735,8 @@ add_action( 'admin_menu', 'RPG_menu' );
  */
 function rpg_admin_settings_init() {
 	//Register in wp_options as rpg_options
-	add_settings_section( 'rpg_settings_section', 'RPG Data Section', 'rpg_data_callback', 'rpg_options_page' );
-	add_settings_field( 'rpg-stories', 'RPG data', 'hidden_data_input', 'rpg_options_page', 'rpg_settings_section' );
+	add_settings_section( 'rpg_settings_section', '', 'rpg_data_callback', 'rpg_options_page' );
+	add_settings_field( 'rpg-stories', '', 'hidden_data_input', 'rpg_options_page', 'rpg_settings_section' );
 	register_setting( 'rpg_options_group', 'rpg_options' );
 
 }
@@ -749,7 +747,7 @@ add_action( 'admin_init', 'rpg_admin_settings_init' );
  */
 function hidden_data_input() {
 	$options = get_option( 'rpg_options' );
-	echo "<input type='text' id='rpg-stories' name='rpg_options[data]' value='{$options['data']}'>";
+	echo "<input type='hidden' id='rpg-stories' name='rpg_options[data]' value='{$options['data']}'>";
 }
 
 function rpg_data_callback() {

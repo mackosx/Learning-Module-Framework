@@ -7,24 +7,41 @@ class Passage {
 		this.weight = weight;
 		this.isStart = false;
 		this.id = id;
+		this.isEnd = false;
 	}
 }
 
 // create the ability to drag components
 Vue.directive('draggable', {
-	bind: function (el) {
+	bind: function (el, binding, vnode) {
 		el.style.position = 'absolute';
 		// index of selected passage
 		let startX, startY, initialMouseX, initialMouseY;
 		let id = el.attributes['data-i'].value;
-		let index = app.passages.getIndexOf(id);
+		let index = 0;
 
 		function mousemove(e) {
+			e.preventDefault();
 			let dx = e.clientX - initialMouseX;
 			let dy = e.clientY - initialMouseY;
-			app.passages.vertices[index].data.top = startY + dy + 'px';
-			app.passages.vertices[index].data.left = startX + dx + 'px';
+
+			let validArea = jQuery('.passage-area')[0];
+
+			if (isValidTop(startY + dy, validArea.clientHeight))
+				app.passages.vertices[index].data.top = startY + dy + 'px';
+			if (isValidLeft(startX + dx, validArea.clientWidth))
+				app.passages.vertices[index].data.left = startX + dx + 'px';
+
 			return false;
+		}
+
+		function isValidTop(top, limit) {
+			return top > 0 && top < (limit - 100);
+
+		}
+
+		function isValidLeft(left, limit) {
+			return left > 0 && left < (limit - 100);
 		}
 
 		function mouseup() {
@@ -33,9 +50,9 @@ Vue.directive('draggable', {
 		}
 
 		el.addEventListener('mousedown', function (e) {
+			e.preventDefault();
 			id = el.attributes['data-i'].value;
 			index = app.passages.getIndexOf(id);
-			console.log(id, index);
 			startX = el.offsetLeft;
 			startY = el.offsetTop;
 			initialMouseX = e.clientX;
@@ -52,37 +69,51 @@ Vue.component('passages', {
 	//language=HTML
 	template: `
         <div class="passage-area">
-            <template v-for="(passage, index) in passages.vertices" >
-                <passage :passage="passage.data" :show="show" :index="passage.data.id" :key="passage.data.id" v-draggable></passage>
+            <template v-for="(passage, index) in passages.vertices">
+                <passage :passage="passage.data" :show="show" :index="passage.data.id" :key="passage.data.id"
+                         v-draggable></passage>
             </template>
 
         </div>
 	`,
 });
+//Story Passage component
 Vue.component('passage', {
 	props: ['passage', 'show', 'index'],
 	//language=HTML
 	template: `
-        <div class="passage-item" @mouseover="edit = true" @mouseleave="edit = false" :data-i="index"
+        <div class="passage-item" :class="{ dragged: moving && edit}" @mouseup="moving = false"
+             @mouseleave="moving = edit = false" @mouseenter="edit = true" :data-i="index"
              :style="{ top: passage.top, left: passage.left }"
              v-draggable>
-            <div class="passage-start" v-show="passage.isStart == true"><i class="fa fa-rocket"></i></div>
+            <div class="passage-identifier" v-show="passage.isStart == true">
+                <i class="fa fa-rocket" aria-label="The starting passage"></i>
+            </div>
+            <div class="passage-identifier" v-if="passage.isEnd == true">
+                <i class="fa fa-stop-circle-o" aria-label="The ending passage"></i>
+            </div>
 
             <div class="passage-content">
                 <h2>{{ passage.name }}</h2>
                 <p>{{ passage.desc }}</p>
             </div>
-            <div class="passage-value">{{ passage.weight }}</div>
-            <div class="passage-options" :style="{ display: edit == true ? 'block':'none' }">
+
+            <div class="passage-value">
+                {{ passage.weight }}
+            </div>
+            <div class="passage-options" :style="{ display: edit == true && moving == false ? 'block':'none' }">
                 <div class="edit-passage-button" @click="show(index)">
-                    <i class="fa fa-pencil-square-o"></i>
+                    <i class="fa fa-pencil-square-o" title="Edit" aria-label="Edit"></i>
                 </div>
                 <div class="designate-start-button" @click="setStart">
-                    <i class="fa fa-rocket"></i>
+                    <i class="fa fa-rocket" title="Set as Start" aria-label="Set as Start"></i>
                 </div>
-	            <div class="delete-passage-button" @click="remove">
-		            <i class="fa fa-trash"></i>
-	            </div>
+                <div class="designate-end-button" @click="setEnd">
+                    <i class="fa fa-stop-circle-o" title="Set as End" aria-label="Set as End"></i>
+                </div>
+                <div class="delete-passage-button" @click="remove">
+                    <i class="fa fa-trash" title="Delete" aria-label="Delete"></i>
+                </div>
             </div>
 
         </div>
@@ -90,23 +121,37 @@ Vue.component('passage', {
 	`,
 	methods: {
 		// Removes start designation from all other passages, then set this passage as start
-		setStart(){
+		setStart() {
 			for (let i = 0; i < app.passages.vertices.length; i++) {
 				app.passages.vertices[i].data.isStart = false;
 			}
+			this.passage.isEnd = false;
 			this.passage.isStart = true;
 		},
-		remove(){
-
+		setEnd() {
+			for (let i = 0; i < app.passages.vertices.length; i++) {
+				app.passages.vertices[i].data.isEnd = false;
+			}
+			this.passage.isStart = false;
+			this.passage.isEnd = true;
+		},
+		// Deletes this passage from the list of vertices
+		remove(e) {
+			//e.stopPropagation();
 			app.passages.removeVertex(this.passage.id);
-			// for(let i = this.index; i < app.passages.objects.length; i ++){
-			// 	app.passages.objects[i].id--;
-			// }
+			if (app.passages.size())
+				this.current = 0;
+			else
+				this.current = -1;
+		},
+		mouseDown(e) {
+			this.moving = true;
 		}
 	},
 	data: function () {
 		return {
-			edit: false
+			edit: false,
+			moving: false
 		}
 	}
 });
@@ -114,7 +159,8 @@ Vue.component('passage', {
 Vue.component('editor', {
 	//language=HTML
 	template: `
-        <div id="passage-editor-container" v-if="passages.size() > 0 && current < passages.vertices.length " v-show="display">
+        <div id="passage-editor-container" v-if="current < passages.size()"
+             v-show="display">
             <transition name="showEditor">
                 <div id="passage-editor">
                     <h3>Edit Passage</h3>
@@ -122,7 +168,7 @@ Vue.component('editor', {
                     <label for="title-input">Title</label><br/>
                     <input type="text" id="title-input" maxlength="100" v-model="passages.vertices[current].data.name"/>
                     <label for="text-input">Text</label><br/>
-                    <textarea id="text-input" v-model="passages.vertices[current].data.desc"
+                    <textarea id="text-input" v-model="passages.vertices[current].desc"
                               placeholder="Write your text here..."></textarea>
                     <label for="weight-input">Value</label><br/>
                     <input type="number" min="-100" max="100" id="weight-input"
@@ -130,11 +176,11 @@ Vue.component('editor', {
                     <div id="parent-editor">
                         <label>Parents</label>
                         <!--Display current parents-->
-                        <template v-for="(parent, pIndex) in passages.edges">
-                            <template v-for="(child, cIndex) in parent">
-                                <ul class="current-parents" v-if="child == current">
-                                    <li class="remove-link" @click="removeParent(current, passages.objects[pIndex].id)">
-                                        {{passages.objects[pIndex].name}}
+                        <template v-for="(parent, pIndex) in passages.vertices">
+                            <template v-for="(child, cIndex) in parent.edges">
+                                <ul class="current-parents" v-if="child == passages.vertices[current].data.id">
+                                    <li class="remove-link">
+                                        {{passages.vertices[pIndex].data.name}}
                                         <i class="fa fa-times"></i>
                                     </li>
                                 </ul>
@@ -144,17 +190,19 @@ Vue.component('editor', {
 
                     <div id="child-editor">
                         <label for="child-select">Children</label>
-                        <select id="child-select" @change="selectChild" v-model="passages.vertices[current].edges" size="3"
+                        <select id="child-select" @change="selectChild" v-model="passages.vertices[current].edges"
+                                size="3"
                                 multiple>
                             <option disabled value="">Select A Child</option>
-                            <template v-for="passage in passages.vertices" v-if="passage.data.id != current">
+                            <template v-for="passage in passages.vertices"
+                                      v-if="passage.data.id != passages.vertices[current].data.id	">
                                 <option :value="passage.data.id">{{passage.data.name}}</option>
                             </template>
                         </select>
                         <ul class="current-children">
                             <template v-for="child in passages.vertices[current].edges">
-                                <li class="remove-link" @click="removeChild(child, current)">
-                                    {{passages.vertices[child].data.name}}
+                                <li class="remove-link" @click="removeChild(child)">
+                                    {{passages.vertices[passages.getIndexOf(child)].data.name}}
                                     <i class="fa fa-times"></i>
                                 </li>
                             </template>
@@ -167,27 +215,27 @@ Vue.component('editor', {
 	`,
 	props: ['display', 'hide', 'current', 'passages'],
 	methods: {
-		selectParent(e){
+		selectParent(e) {
 			let parentIndex = parseInt(e.target.value);
 			this.passages.addEdge(parentIndex, this.current);
 
 		},
-		selectChild(e){
+		selectChild(e) {
 			for (op in e.selectedOptions) {
 				let childIndex = parseInt(op.value);
-				this.passages.addEdge(this.current, childIndex);
-				console.log(this.passages.edges[this.current]);
+				this.passages.vertices[current].addChild(childIndex);
 			}
 		},
-		removeChild(child, parent){
-			this.passages.removeEdge(child, current);
+		removeChild(child) {
+			this.passages.vertices[this.current].removeChild(child);
 		},
-		removeParent(child, parent){
+		removeParent(child, parent) {
 			this.passages.removeEdge(child, current);
 		}
 
 	}
 });
+
 // imports story from localized data
 function checkStory(previousStory) {
 	if (previousStory) {
@@ -213,21 +261,21 @@ let app = new Vue({
 
 	},
 	methods: {
-		addPassage(){
+		addPassage() {
+			// Set the id of the new passage to one more than the biggest id
 			const len = this.passages.vertices.length;
-			let id = 1;
-			if(this.passages.vertices[len - 1] !== undefined)
+			let id = 0;
+			if (this.passages.vertices[len - 1] !== undefined)
 				id = this.passages.vertices[len - 1].data.id + 1;
-			let newPassage = new Passage('Untitled ' + id, '', '10px', '10px', 0, id);
+			let newPassage = new Passage('Untitled ' + (id + 1), '', '10px', '10px', 0, id);
 			this.passages.addVertex(newPassage);
-
 			this.showEditor(newPassage.id);
 		},
-		showEditor(id){
+		showEditor(id) {
 			this.currentPassageEdit = this.passages.getIndexOf(id);
 			this.isEditing = true;
 		},
-		hideEditor(){
+		hideEditor() {
 			//this.currentPassageEdit = -1;
 			this.isEditing = false;
 		}

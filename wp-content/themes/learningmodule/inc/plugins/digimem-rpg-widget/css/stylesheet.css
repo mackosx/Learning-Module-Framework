@@ -1,4 +1,6 @@
-.passage-item{
+
+.passage-item {
+
     position: absolute;
     height: 7em;
     width: 7em;
@@ -8,14 +10,18 @@
     border-radius: 1px;
     padding: 2px;
     z-index: 1;
-    border: none;
+    border: 1px solid #333333;
 }
-.passage-item .passage-content{
+
+.passage-item .passage-content {
     overflow: hidden;
     height: inherit;
     width: inherit;
+    display: inline-block;
+    vertical-align: middle;
 }
-.passage-item .passage-start{
+
+.passage-item .passage-identifier {
     position: absolute;
     top: -1em;
     right: -1em;
@@ -29,16 +35,19 @@
     vertical-align: middle;
     line-height: 2em;
 }
-.passage-item h2{
+
+.passage-item h2 {
     font-size: 1.2em;
     color: white;
     margin: 0;
 }
-.passage-item p{
+
+.passage-item p {
     color: inherit;
     margin-top: 0.15em;
 }
-.passage-item .passage-value{
+
+.passage-item .passage-value {
     position: absolute;
     bottom: -1em;
     right: -1em;
@@ -52,24 +61,35 @@
     vertical-align: middle;
     line-height: 2em;
 }
-#container{
+
+.passage-area {
+    height: calc(100% - var(--toolbar-height));
+    position: relative;
+    width: 80%;
+}
+
+#container {
     margin-bottom: 2em;
     width: 99%;
     height: 600px;
 }
-input, textarea{
+
+input, textarea {
     border: none;
     border-radius: 1px;
     padding: 2px;
 }
-#main{
+
+#main {
+    --toolbar-height: 6em;
     position: relative;
     height: 100%;
     width: 100%;
     border: 1px solid black;
     background: #0e131e;
 }
-.information-sidebar{
+
+.information-sidebar {
     color: aqua;
     position: absolute;
     right: 0;
@@ -81,26 +101,31 @@ input, textarea{
     min-width: 130px;
     z-index: 2;
 }
-.information-sidebar .info{
+
+.information-sidebar .info {
     padding: 1em;
 }
-.toolbar{
+
+.toolbar {
     z-index: 3;
     position: absolute;
     bottom: 0;
-    height: 6em;
+    height: var(--toolbar-height);
     width: 100%;
-    background-color: #e0e0e0;
+    background-color: #4b4b4b;
 }
-.toolbar-tools{
+
+.toolbar-tools {
     /*padding: 1em;*/
 }
+
 .information-sidebar input,
-.information-sidebar textarea{
+.information-sidebar textarea {
     width: 100%;
     resize: vertical;
     max-height: 300px;
 }
+
 #add-passage-btn {
     background-color: #00ee00;
     color: white;
@@ -109,17 +134,18 @@ input, textarea{
     width: 1.5em;
     font-size: 4em;
     outline: none;
-
     padding: 0 0 0.5em;
 }
-#add-passage-btn:hover{
+
+#add-passage-btn:hover {
     background-color: lightgreen;
     cursor: pointer;
 }
-#passage-editor-container{
+
+#passage-editor-container {
     position: absolute;
-    left:0;
-    right:0;
+    left: 0;
+    right: 0;
     top: 0;
     bottom: 0;
     margin: auto;
@@ -127,32 +153,37 @@ input, textarea{
     width: 50%;
     z-index: 3;
 }
-#passage-editor{
+
+#passage-editor {
     position: relative;
     color: white;
     height: auto;
     padding: 2em;
     background-color: rgba(29, 31, 33, 0.85);
 }
-#weight-input{
+
+#weight-input {
     width: 3em;
 }
+
 #passage-editor input[type='text'],
-#passage-editor textarea{
+#passage-editor textarea {
     width: 95%;
     border: none;
     padding: 2px;
     font-size: inherit;
 }
-#passage-editor textarea{
+
+#passage-editor textarea {
     height: 10em;
 }
-#passage-editor h3{
+
+#passage-editor h3 {
     margin-top: 0;
     color: inherit;
 }
 
-.close-editor{
+.close-editor {
     font-size: 1em;
     background-color: #1d1f21;
     border: 0;
@@ -164,30 +195,34 @@ input, textarea{
     width: 2em;
     line-height: 2em;
     vertical-align: middle;
-
 }
-.close-editor:hover{
+
+.close-editor:hover {
     background-color: #3e4244;
     outline: none;
     font-weight: bold;
     cursor: pointer;
 }
-#line{
+
+#line {
     height: 150px;
     width: 0;
     border: 1px solid black;
 }
-html{
+
+html {
     font-family: 'Helvetica', sans-serif;
 }
+
 .current-parents,
-.current-children{
+.current-children {
     display: inline-block;
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
-.remove-link{
+
+.remove-link {
     border-radius: 10px;
     display: inline-block;
     background-color: #81a2be;
@@ -195,61 +230,57 @@ html{
     height: 1em;
     margin-right: 0.1em;
     margin-top: 0.2em;
-
 }
-.remove-link:hover{
+
+.remove-link:hover {
     cursor: pointer;
-
 }
-.remove-link:hover i{
+
+.remove-link:hover i {
     color: red;
-
-
 }
-#child-editor{
+
+#child-editor {
     display: inline-block;
     margin-top: 2em;
 
 }
-#child-editor *{
+
+#child-editor * {
     vertical-align: top;
 }
-.current-children{
-   display: block;
+
+.current-children {
+    display: block;
 }
-/* Enter and leave animations can use different */
-/* durations and timing functions.              */
-.showEditor-enter-active {
-    transition: all .3s ease;
-}
-.showEditor-leave-active {
-    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-}
-.showEditor-enter, .showEditor-leave-to
-    /* .slide-fade-leave-active for <2.1.8 */ {
-    transform: translateX(10px);
-    opacity: 0;
-}
-.passage-options{
+
+.passage-options {
     position: absolute;
     left: -1.5em;
-    top: 0;
+    top: 50%;
     text-align: center;
-    height: calc(3.5em + 4px);
+    height: auto;
     width: 1em;
     font-size: 2em;
     color: lightgrey;
     background-color: #333333;
     vertical-align: middle;
+    display: inline-block;
     line-height: 1.2em;
-    border-bottom-left-radius: 0.25em;
-    border-top-left-radius: 0.25em;
-    padding: 0 0.25em 0 0.25em;
+    border-radius: 0.1em;
+    padding: 0.25em;
+    transform: translateY(-50%);
 }
-.passage-options > div{
+
+.passage-options > div {
     display: inline-block;
     font-size: inherit;
 }
-.passage-options > div:hover{
+
+.passage-options > div:hover {
     color: aqua;
+}
+
+.dragged {
+    border: 1px solid #4286f4;
 }
