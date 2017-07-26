@@ -3,7 +3,7 @@ jQuery(document).ready(function($) {
 	// Listen for Credly Badge Builder events
 	window.addEventListener( 'message', function(e) {
 		// Only continue if data is from credly.com
-		if ( "https://credly.com" === e.origin && "object" === typeof( data = e.data ) ) {
+		if ( "https://credly.com" === e.origin && "object" === typeof( rpgData = e.data ) ) {
 			var win = window.dialogArguments || opener || parent || top;
 
 			// Remove the badge builder thickbox

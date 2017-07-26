@@ -4,22 +4,70 @@ class Node {
 		this.edges = [];
 	}
 
-	addChild(id) {
-		const index = this.edges.indexOf(id);
+	addChild(from, to, id) {
+		const index = Digraph.indexOfObject(id, this.edges);
+		let conn = '';
 		// Make sure node is not already pointed to id
 		if (index <= -1) {
-			this.edges.push(id);
+			jsPlumb.ready(() => {
+				conn = this.connect(from, to);
+			});
+			this.edges.push(
+				{
+					id: id,
+					connection: conn
+				});
 		}
 	}
 
+	connect(from, to) {
+		let conn;
+		conn = jsPlumb.connect({
+			source: from,
+			target: to,
+			anchor: ["Perimeter", {shape: "Square"}],
+			overlays: [
+				["Arrow", {location: 1, width: 15, height: 15, id: 'arrow'}]
+			],
+			endpoints: ['Blank', 'Blank'],
+			connector: ['Bezier', {curviness: 20}],
+			detachable: false
+		});
+		return conn;
+	}
+
 	removeChild(id) {
-		const index = this.edges.indexOf(id);
+		const index = Digraph.indexOfObject(id, this.edges);
 		if (~index) {
+			jsPlumb.ready(() => {
+				let conn = this.edges[index].connection;
+				jsPlumb.deleteEndpoint(conn.endpoints[0]);
+			});
 			this.edges.splice(index, 1);
 		}
 	}
-	numberOfEdges(){
+
+	numberOfEdges() {
 		return this.edges.length;
+	}
+
+	toJSON() {
+		// implement json method so we can exclude edge connection
+		let copy = {},
+			exclude = {edges: 1};
+		for (let prop in this) {
+			if (!exclude[prop]) {
+				copy[prop] = this[prop];
+			} else if(prop =='edges'){
+				let newEdges = [];
+				for(let i = 0; i < this.edges.length; i++){
+					newEdges.push({id: this.edges[i].id});
+				}
+				copy[prop] = newEdges;
+			}
+		}
+		return copy;
+
 	}
 }
 
@@ -29,6 +77,16 @@ class Digraph {
 		this.vertices = [];
 	}
 
+	static indexOfObject(id, array) {
+		let index = -1;
+		for (let i = 0, len = array.length; i < len; i++) {
+			if (array[i].id == id || array[i] == id) {
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
 
 	addVertex(data) {
 		this.vertices.push(new Node(data));
@@ -65,99 +123,19 @@ class Digraph {
 		return this.numberOfEdges;
 	}
 
-	// traverseDFS(vertex, fn) {
-	// 	if (!~this.vertices.indexOf(vertex)) {
-	// 		return console.log('Vertex not found');
-	// 	}
-	// 	const visited = [];
-	// 	this._traverseDFS(vertex, visited, fn);
-	// }
-	//
-	// _traverseDFS(vertex, visited, fn) {
-	// 	visited[vertex] = true;
-	// 	if (this.edges[vertex] !== undefined) {
-	// 		fn(vertex);
-	// 	}
-	// 	for (let i = 0; i < this.edges[vertex].length; i++) {
-	// 		if (!visited[this.edges[vertex][i]]) {
-	// 			this._traverseDFS(this.edges[vertex][i], visited, fn);
-	// 		}
-	// 	}
-	// }
-	//
-	// traverseBFS(vertex, fn) {
-	// 	if (!~this.vertices.indexOf(vertex)) {
-	// 		return console.log('Vertex not found');
-	// 	}
-	// 	const queue = [];
-	// 	queue.push(vertex);
-	// 	const visited = [];
-	// 	visited[vertex] = true;
-	//
-	// 	while (queue.length) {
-	// 		vertex = queue.shift();
-	// 		fn(vertex);
-	// 		for (let i = 0; i < this.edges[vertex].length; i++) {
-	// 			if (!visited[this.edges[vertex][i]]) {
-	// 				visited[this.edges[vertex][i]] = true;
-	// 				queue.push(this.edges[vertex][i]);
-	// 			}
-	// 		}
-	// 	}
-	// }
-	//
-	// pathFromTo(vertexSource, vertexDestination) {
-	// 	if (!~this.vertices.indexOf(vertexSource)) {
-	// 		return console.log('Vertex not found');
-	// 	}
-	// 	const queue = [];
-	// 	queue.push(vertexSource);
-	// 	const visited = [];
-	// 	visited[vertexSource] = true;
-	// 	const paths = [];
-	//
-	// 	while (queue.length) {
-	// 		const vertex = queue.shift();
-	// 		for (let i = 0; i < this.edges[vertex].length; i++) {
-	// 			if (!visited[this.edges[vertex][i]]) {
-	// 				visited[this.edges[vertex][i]] = true;
-	// 				queue.push(this.edges[vertex][i]);
-	// 				// save paths between vertices
-	// 				paths[this.edges[vertex][i]] = vertex;
-	// 			}
-	// 		}
-	// 	}
-	// 	if (!visited[vertexDestination]) {
-	// 		return undefined;
-	// 	}
-	//
-	// 	const path = [];
-	// 	for (let j = vertexDestination; j != vertexSource; j = paths[j]) {
-	// 		path.push(j);
-	// 	}
-	// 	path.push(j);
-	// 	return path.reverse().join('-');
-	// }
-	//
-	// print() {
-	// 	console.log(this.vertices.map(function (vertex) {
-	// 		return (`${vertex} -> ${this.edges[vertex].join(', ')}`).trim();
-	// 	}, this).join(' | '));
-	// }
-
 	compactToJSON(title, desc) {
-		console.log(this);
 		const s = {
 			data: this,
 			title: title,
 			desc: desc
 		};
+		console.log(s);
 		document.getElementById('rpg-stories').value = JSON.stringify(s);
 		return JSON.stringify(s);
 	}
 
 	importFromJSON(story) {
-		for(let i = 0; i < story.data.vertices.length; i++){
+		for (let i = 0; i < story.data.vertices.length; i++) {
 			let oldNode = story.data.vertices[i];
 			let newNode = new Node(oldNode.data);
 			newNode.edges = oldNode.edges;

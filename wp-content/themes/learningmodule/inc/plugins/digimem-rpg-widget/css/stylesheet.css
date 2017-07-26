@@ -85,8 +85,8 @@ input, textarea {
     position: relative;
     height: 100%;
     width: 100%;
-    border: 1px solid black;
     background: #0e131e;
+    overflow: hidden;
 }
 
 .information-sidebar {
@@ -96,8 +96,8 @@ input, textarea {
     top: 0;
     width: 20%;
     height: calc(100% - 4em);
-    background-color: #4b4b4b;
-    box-shadow: 5px 1px 8px #333333 inset;
+    background-color: #232323;
+    box-shadow: 5px 1px 8px #181818 inset;
     min-width: 130px;
     z-index: 2;
 }
@@ -112,7 +112,7 @@ input, textarea {
     bottom: 0;
     height: var(--toolbar-height);
     width: 100%;
-    background-color: #4b4b4b;
+    background-color: #232323;
 }
 
 .toolbar-tools {
@@ -124,22 +124,42 @@ input, textarea {
     width: 100%;
     resize: vertical;
     max-height: 300px;
+    color: lightgrey;
+    background-color: rgb(9, 9, 12);
 }
 
 #add-passage-btn {
     background-color: #00ee00;
     color: white;
+
+}
+
+.toolbar button {
     border: none;
-    height: 1.5em;
-    width: 1.5em;
-    font-size: 4em;
+    height: 2em;
+    width: 2em;
+    font-size: 3em;
     outline: none;
-    padding: 0 0 0.5em;
+    line-height: 1.5em;
+    padding: 0;
+    float: left;
+    color: white;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+#zoom-btn {
+    background-color: #74b6ce;
+}
+
+#zoom-btn:hover {
+    background-color: #8bd9f5;
 }
 
 #add-passage-btn:hover {
     background-color: lightgreen;
-    cursor: pointer;
 }
 
 #passage-editor-container {
@@ -154,24 +174,41 @@ input, textarea {
     z-index: 3;
 }
 
+#passage-editor-container::before {
+    content: '';
+    position: absolute;
+    top: -12.5%;
+    left: -50%;
+    width: 200%;
+    height: 109%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
 #passage-editor {
     position: relative;
     color: white;
     height: auto;
     padding: 2em;
-    background-color: rgba(29, 31, 33, 0.85);
+    background-color: rgb(29, 31, 33);
 }
 
-#weight-input {
+input#weight-input {
     width: 3em;
 }
 
-#passage-editor input[type='text'],
+#passage-editor input,
+#passage-editor select,
 #passage-editor textarea {
-    width: 95%;
     border: none;
     padding: 2px;
     font-size: inherit;
+    color: lightgrey;
+    background-color: rgb(9, 9, 12);
+}
+
+#passage-editor input,
+#passage-editor textarea {
+    width: 100%;
 }
 
 #passage-editor textarea {
@@ -184,7 +221,7 @@ input, textarea {
 }
 
 .close-editor {
-    font-size: 1em;
+    font-size: 2em;
     background-color: #1d1f21;
     border: 0;
     color: inherit;
@@ -223,13 +260,15 @@ html {
 }
 
 .remove-link {
-    border-radius: 10px;
+    border-radius: 1px;
     display: inline-block;
-    background-color: #81a2be;
-    padding: 5px;
-    height: 1em;
-    margin-right: 0.1em;
+    background-color: darkgrey;
+    padding: 3px 3px 3px 10px;
+    height: 2em;
+    margin-right: 0.2em;
     margin-top: 0.2em;
+    vertical-align: middle;
+    line-height: 2em;
 }
 
 .remove-link:hover {
@@ -246,34 +285,36 @@ html {
 
 }
 
-#child-editor * {
-    vertical-align: top;
+#child-editor label {
+    vertical-align: middle;
 }
 
 .current-children {
     display: block;
 }
+.current-children li *{
+    vertical-align: top;
+}
 
 .passage-options {
     position: absolute;
-    left: -1.5em;
+    left: -2em;
     top: 50%;
     text-align: center;
     height: auto;
-    width: 1em;
+    width: 2em;
     font-size: 2em;
     color: lightgrey;
     background-color: #333333;
     vertical-align: middle;
     display: inline-block;
-    line-height: 1.2em;
     border-radius: 0.1em;
-    padding: 0.25em;
+    padding-bottom: 0.5em;
     transform: translateY(-50%);
 }
 
 .passage-options > div {
-    display: inline-block;
+    padding-top: 0.5em;
     font-size: inherit;
 }
 

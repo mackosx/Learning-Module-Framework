@@ -55,14 +55,14 @@ class RPG_Widget extends WP_Widget {
             } else { ?>
             <h2><?= $data['title']?></h2>
             <p><?=$data['desc']?></p>
-             <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages" :score="score"></passage>
+             <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages" :score="score" :again="playAgain"></passage>
 
 
             <?php } ?>
         </div>
 
 		<?php
-		wp_localize_script('digimem-rpg-widget-display', 'data', array($this->get_field_id('story-area'), $startPassage, $passages));
+		wp_localize_script('digimem-rpg-widget-display', 'rpgData', array($this->get_field_id('story-area'), $startPassage, $passages));
 
 		echo $args['after_widget'];
 	}

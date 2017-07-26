@@ -668,9 +668,16 @@ function RPG_creator() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	wp_enqueue_script( 'vue', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/vue.js' ), array(), '2.3.0', false );
+	wp_enqueue_script( 'jsplumb', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/jsplumb.js' ), array(), '', false );
+
 	wp_enqueue_style( 'digimem-rpg-widget-admin-style', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/css/stylesheet.css' ) );
-	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array(), false, false );
-	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array( 'vue', 'adjacency-list', 'jquery' ), '1.0', true );
+	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array('jsplumb'), false, false );
+	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array(
+		'vue',
+		'adjacency-list',
+		'jquery',
+        'jsplumb'
+	), '1.0', true );
 	wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/e4527517d1.js' );
 	$data = get_option( 'rpg_options' );
 	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
@@ -678,23 +685,28 @@ function RPG_creator() {
     <h1>RPG Editor</h1>
     <div id="container">
         <div id="main">
-                <svg id="svg-grid" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
-                     style="position: absolute;">
-                    <defs>
-                        <pattern id="smallGrid" width="16" height="16" patternUnits="userSpaceOnUse">
-                            <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#00264c" stroke-width="0.75"/>
-                        </pattern>
-                        <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-                            <rect width="160" height="160" fill="url(#smallGrid)"/>
-                            <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#00264c" stroke-width="1"/>
-                        </pattern>
-                    </defs>
+            <svg id="svg-grid" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
+                 style="position: absolute;">
+                <defs>
+                    <pattern id="smallGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                        <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#00264c" stroke-width="0.75"/>
+                    </pattern>
+                    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                        <rect width="160" height="160" fill="url(#smallGrid)"/>
+                        <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#00264c" stroke-width="1"/>
+                    </pattern>
+                </defs>
 
-                    <rect width="100%" height="100%" fill="url(#grid)"/>
-                </svg>
+                <rect width="100%" height="100%" fill="url(#grid)"/>
+            </svg>
             <div class="toolbar">
                 <div class="toolbar-tools">
-                    <button type="button" id="add-passage-btn" @click="addPassage">&#43;</button>
+                    <button type="button" id="add-passage-btn" @click="addPassage">
+                        <i class="fa fa-plus" aria-label="Add passage"></i>
+                    </button>
+                    <button type="button" id="zoom-btn" @click="zoom">
+                        <i class="fa" :class="zoomClass" aria-label="zoom"></i>
+                    </button>
                 </div>
             </div>
             <div class="information-sidebar">
@@ -705,9 +717,9 @@ function RPG_creator() {
                     <textarea id="description" v-model="desc" placeholder="Story description..."></textarea>
                 </div>
             </div>
-            <passages :show="showEditor" :passages="passages"></passages>
-
-            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"></editor>
+            <passages :zoom="zoomLevel" :show="showEditor" :passages="passages"></passages>
+            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages" :passage-elements="passageElements"></editor>
+            <template @heresData="listen"></template>
         </div>
     </div>
     <form method="post" action="options.php" id="save-rpg">
