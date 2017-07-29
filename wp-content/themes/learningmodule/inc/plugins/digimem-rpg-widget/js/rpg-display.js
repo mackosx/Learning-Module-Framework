@@ -1,29 +1,44 @@
 Vue.component('passage', {
 	//language=HTML
 	template: `
-        <div class="passages">
-            <h3>{{current.data.name}}</h3>
-            <p>{{current.data.desc}}</p>
-            <ul class="options">
-                <template v-for="child in current.edges">
-	                <li @click="change(passages.getIndexOf(child.id))"><a>{{'Choose : ' + passages.vertices[passages.getIndexOf(child.id)].data.name}}</a></li>
-                </template>
-            </ul>
-	        <div class="end" v-if="current.data.isEnd">
-		        <p>You have completed this section.</p>
-		        <p>You scored {{score}} points.</p>
-		        <button type="button" @click="again"><p>Play Again</p></button>
-	        </div>
-     
-        </div>
+		<transition name="fade" :duration="1000">
+            <div class="passage" v-show="!transition">
+                <h3>{{current.data.name}}</h3>
+                <p>{{current.data.desc}}</p>
+                <ul class="options">
+                    <template v-for="child in current.edges">
+                        <li @click="changePassage(passages.getIndexOf(child.id))"><a>{{'Choose : ' + passages.vertices[passages.getIndexOf(child.id)].data.name}}</a></li>
+                    </template>
+                </ul>
+                <div class="end" v-if="current.data.isEnd">
+                    <p>You have completed this section.</p>
+                    <p>You scored {{score}} points.</p>
+                    <button type="button" @click="again"><p>Play Again</p></button>
+                </div>
+
+            </div>
+		</transition>
+        
 	`,
-	props: ['current', 'change', 'passages', 'score', 'again']
+	props: ['current', 'change', 'passages', 'score', 'again'],
+	data: function(){
+		return {
+			transition: false
+		}
+	},
+	methods: {
+		changePassage(index){
+			this.transition = true;
+			this.change(index);
+			this.transition = false;
+		}
+	}
 });
 
 let e = new Vue({
 	el: '#' + rpgData[0],
 	data: {
-		passages: importData(rpgData[2], rpgData[1]),
+		passages: importData(rpgData[2]),
 		currentPassage: rpgData[1],
 		score: 0
 	},
@@ -42,7 +57,7 @@ let e = new Vue({
 	}
 });
 //TODO: Add transition effect to story display
-function importData(data, x){
+function importData(data){
 	let d = new Digraph();
 	d.vertices = data['vertices'];
 	return d;

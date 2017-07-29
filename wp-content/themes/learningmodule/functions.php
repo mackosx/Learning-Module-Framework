@@ -680,7 +680,8 @@ function RPG_creator() {
 	), '1.0', true );
 	wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/e4527517d1.js' );
 	$data = get_option( 'rpg_options' );
-	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
+	if($data != '')
+	    wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
 	?>
     <h1>RPG Editor</h1>
     <div id="container">
