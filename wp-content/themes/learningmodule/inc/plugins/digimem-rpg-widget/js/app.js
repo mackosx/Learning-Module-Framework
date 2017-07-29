@@ -266,7 +266,7 @@ Vue.component('editor', {
 
 // imports story from localized data
 function checkStory(previousStory) {
-	if (previousStory) {
+	if (previousStory && previousStory != '') {
 		//parse json string
 		const s = JSON.parse(previousStory.data);
 		//create new digraph with object
