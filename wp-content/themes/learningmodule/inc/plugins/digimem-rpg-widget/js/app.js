@@ -285,7 +285,8 @@ function checkStory(previousStory) {
 		};
 	}
 }
-let previous = checkStory(previousStory);
+
+let previous = typeof previousStory !== 'undefined' ? checkStory(previousStory) : '';
 
 let app = new Vue({
 	el: '#main',
