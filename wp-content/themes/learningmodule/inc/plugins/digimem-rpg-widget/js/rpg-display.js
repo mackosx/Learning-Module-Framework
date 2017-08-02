@@ -20,7 +20,7 @@ Vue.component('passage', {
 		</transition>
         
 	`,
-	props: ['current', 'change', 'passages', 'score', 'again'],
+	props: ['current', 'change', 'passages', 'score', 'again', 'title'],
 	data: function(){
 		return {
 			transition: false
@@ -62,3 +62,9 @@ function importData(data){
 	d.vertices = data['vertices'];
 	return d;
 }
+jQuery(document).ready(function(){
+	jQuery('#' + rpgData[3]).on('click', function(){
+		jQuery(this).hide(500);
+		jQuery('#' + rpgData[4]).show(500);
+	})
+});

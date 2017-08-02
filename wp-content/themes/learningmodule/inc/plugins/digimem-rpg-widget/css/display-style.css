@@ -18,3 +18,11 @@
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0
 }
+.story-area{
+    border: 2px solid black;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+.options{
+    list-style-type: none;
+}

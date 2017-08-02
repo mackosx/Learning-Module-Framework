@@ -48,21 +48,19 @@ class RPG_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		?>
         <div class="rpgwidget" id="<?= $this->get_field_id( 'container' ) ?>">
-            <div class="story-area" id="<?=$this->get_field_id('story-area')?>">
+            <button id="<?=$this->get_field_id('show-button')?>">Start: <?=$data['title']?></button>
+            <div class="story-area" id="<?=$this->get_field_id('story-area')?>" style="display: none">
 
             <?php if(!$foundStart) {
 	            echo '<p>No starting point was found for this story.</p>';
             } else { ?>
-            <h2><?= $data['title']?></h2>
             <p><?=$data['desc']?></p>
              <passage :current="currentPassage" :change="changeCurrentPassage" :passages="passages" :score="score" :again="playAgain"></passage>
-
-
             <?php } ?>
         </div>
 
 		<?php
-		wp_localize_script('digimem-rpg-widget-display', 'rpgData', array($this->get_field_id('story-area'), $startPassage, $passages));
+		wp_localize_script('digimem-rpg-widget-display', 'rpgData', array($this->get_field_id('story-area'), $startPassage, $passages, $this->get_field_id('show-button'), $this->get_field_id('story-area')));
 
 		echo $args['after_widget'];
 	}
