@@ -71,6 +71,22 @@
 
     }
     function gameOver(score) {
+	    // Send score to db as AJAX
+	    $.ajax({
+		    type: 'POST',
+		    url: classificationGame.ajaxUrl,
+		    data: {
+			    action: 'submit_score',
+			    wid: id,
+			    score: score,
+			    type: 'classification'
+		    },
+		    success: function(data){
+		    	showGameOverScreen(score, data);
+		    }
+	    });
+    }
+    function showGameOverScreen(score, data){
         // show game over screen and score
         stage.removeAllChildren();
         stage.addChild(gameOverScreen);
@@ -78,7 +94,8 @@
         gameOverScreen.addChild(bg);
         bg.graphics.beginFill('#808080').drawRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
         let endText = new createjs.Text('Game Over!', '100px ' + FONT);
-        let scoreText = new createjs.Text('Score: ' + score + '/' + max, '100px ' + FONT);
+        let scoreMsg = data === 'FALSE' ? '\nYou are not logged in, \nso your score was not saved.' : '';
+        let scoreText = new createjs.Text('Score: ' + score + '/' + max +  scoreMsg, '50px ' + FONT);
         endText.textAlign = scoreText.textAlign = 'center';
         endText.textBaseline = scoreText.textBaseline = 'middle';
         gameOverScreen.addChild(endText, scoreText);

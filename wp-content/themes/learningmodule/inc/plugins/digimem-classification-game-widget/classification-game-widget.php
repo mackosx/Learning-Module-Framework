@@ -22,9 +22,9 @@ class Classification_Game_Widget extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
-        /*
-         * Classification Game Widget Scripts and Styles
-	     */
+		/*
+		 * Classification Game Widget Scripts and Styles
+		 */
 		wp_enqueue_style( 'digimem-classification-game-style-public', get_theme_file_uri( '/inc/plugins/digimem-classification-game-widget/css/classification-game-widget-public.css' ), array() );
 		wp_enqueue_script( 'digimem-classification-game-public', get_theme_file_uri( '/inc/plugins/digimem-classification-game-widget/js/classification-game-public.js' ), array(
 			'jquery',
@@ -36,14 +36,23 @@ class Classification_Game_Widget extends WP_Widget {
 		// Send instance data and widget id to game script
 		$data       = $instance;
 		$data['id'] = $this->number;
+		// Send the image locations to the script
 		wp_localize_script( 'digimem-classification-game-public', 'data', $data );
-
+		// Send the AJAX URL to the script ( for storing scores in db).
+		wp_localize_script(
+			"digimem-classification-game-public",
+			"classificationGame",
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' )
+			)
+		);
 
 		echo $args['before_widget'];
 		?>
         <div class="classification-game-widget" id="<?= $this->get_field_id( 'container' ) ?>">
-            <button class="button play-classification-game" type="button" onclick="showClassificationGame(<?= $this->number ?>)">Play
-                Game
+            <button class="button play-classification-game" type="button"
+                    onclick="showClassificationGame(<?= $this->number ?>)">Play
+                                                                           Game
             </button>
             <canvas style="display:none;" class="classification-game" id="myCanvas-<?= $this->number ?>" width="900"
                     height="600"></canvas>
@@ -83,12 +92,13 @@ class Classification_Game_Widget extends WP_Widget {
 				$i ++
 			) {
 
-			    $cat = 'cat' . ( $i + 1 );
-				if(!isset($instance[ $cat . '-images-count' ]) || empty($instance[ $cat . '-images-count' ] )){
+				$cat = 'cat' . ( $i + 1 );
+				if ( ! isset( $instance[ $cat . '-images-count' ] ) || empty( $instance[ $cat . '-images-count' ] ) ) {
 					$instance[ $cat . '-images-count' ] = 0;
-                }
-                if(!isset($instance[$cat]))
-                    $instance[$cat] = '';
+				}
+				if ( ! isset( $instance[ $cat ] ) ) {
+					$instance[ $cat ] = '';
+				}
 
 				?>
                 <div id="<?= $this->get_field_id( $cat . '-container' ) ?>">
@@ -120,10 +130,10 @@ class Classification_Game_Widget extends WP_Widget {
 						}
 						?>
                         <script>
-                            var images<?=$i + 1?> = jQuery('#<?=$this->get_field_id( $cat . '-images' )?>').children();
-                            for (let i = 1; i <= images<?=$i + 1?>.length / 2; i++) {
-                                jQuery('#widget-classification-game-cat<?=$i + 1?>-images-' + i).attr('src', jQuery('input[name="<?=$this->get_field_name( $cat . '-images-' )?>' + i + '"]').val());
-                            }
+							var images<?=$i + 1?> = jQuery('#<?=$this->get_field_id( $cat . '-images' )?>').children();
+							for (let i = 1; i <= images<?=$i + 1?>.length / 2; i++) {
+								jQuery('#widget-classification-game-cat<?=$i + 1?>-images-' + i).attr('src', jQuery('input[name="<?=$this->get_field_name( $cat . '-images-' )?>' + i + '"]').val());
+							}
                         </script>
                         <input type="hidden" id="<?= $this->get_field_id( $cat . '-images-count' ) ?>"
                                name="<?= $this->get_field_name( $cat . '-images-count' ) ?>"
@@ -157,7 +167,7 @@ class Classification_Game_Widget extends WP_Widget {
 			?>
             <p class="saved" id="<?= $this->get_field_id( 'saved' ) ?>">Your settings were successfully saved.</p>
             <script>
-                jQuery('#<?=$this->get_field_id( 'saved' )?>').delay(3000).fadeOut(1500);
+				jQuery('#<?=$this->get_field_id( 'saved' )?>').delay(3000).fadeOut(1500);
             </script>
 			<?php
 			$this->saving = false;

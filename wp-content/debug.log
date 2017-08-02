@@ -1822,3 +1822,21 @@ Stack trace:
 [29-Jul-2017 17:57:50 UTC] WP_Community_Events::maybe_log_events_response: Valid response received. Details: {"api_url":"https:\/\/api.wordpress.org\/events\/1.0\/","request_args":{"body":{"number":5,"ip":"::","locale":"en_CA","timezone":"America\/Vancouver"}},"response_code":200,"response_body":{"location":{"ip":"173.183.81.234"},"events":"3 events trimmed."}}
 [01-Aug-2017 19:06:06 UTC] PHP Notice:  Undefined index: numCat in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-montage-widget\montage-widget.php on line 80
 [01-Aug-2017 19:09:25 UTC] WP_Community_Events::maybe_log_events_response: Valid response received. Details: {"api_url":"https:\/\/api.wordpress.org\/events\/1.0\/","request_args":{"body":{"number":5,"ip":"::","locale":"en_CA","timezone":"America\/Vancouver"}},"response_code":200,"response_body":{"location":{"ip":"142.231.66.183"},"events":"3 events trimmed."}}
+[02-Aug-2017 20:15:02 UTC] PHP Fatal error:  Cannot redeclare update_user_meta() (previously declared in C:\xampp\htdocs\wordpress\wp-includes\user.php:820) in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\functions.php on line 807
+[02-Aug-2017 20:46:15 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_current_site() in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-classification-game-widget\classification-game-ajax-functions.php:58
+Stack trace:
+#0 C:\xampp\htdocs\wordpress\wp-includes\class-wp-hook.php(298): submit_score('')
+#1 C:\xampp\htdocs\wordpress\wp-includes\class-wp-hook.php(323): WP_Hook->apply_filters('', Array)
+#2 C:\xampp\htdocs\wordpress\wp-includes\plugin.php(453): WP_Hook->do_action(Array)
+#3 C:\xampp\htdocs\wordpress\wp-admin\admin-ajax.php(91): do_action('wp_ajax_submit_...')
+#4 {main}
+  thrown in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-classification-game-widget\classification-game-ajax-functions.php on line 58
+[02-Aug-2017 20:48:04 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_current_site() in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-classification-game-widget\classification-game-ajax-functions.php:58
+Stack trace:
+#0 C:\xampp\htdocs\wordpress\wp-includes\class-wp-hook.php(298): submit_score('')
+#1 C:\xampp\htdocs\wordpress\wp-includes\class-wp-hook.php(323): WP_Hook->apply_filters('', Array)
+#2 C:\xampp\htdocs\wordpress\wp-includes\plugin.php(453): WP_Hook->do_action(Array)
+#3 C:\xampp\htdocs\wordpress\wp-admin\admin-ajax.php(101): do_action('wp_ajax_nopriv_...')
+#4 {main}
+  thrown in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-classification-game-widget\classification-game-ajax-functions.php on line 58
+[02-Aug-2017 20:51:14 UTC] PHP Notice:  Array to string conversion in C:\xampp\htdocs\wordpress\wp-content\themes\learningmodule\inc\plugins\digimem-classification-game-widget\classification-game-ajax-functions.php on line 64

@@ -575,7 +575,7 @@ add_filter( 'learningmodule_front_page_sections', 'wpc_custom_front_sections' );
 /*
  * Helper function to add ajax actions to either admin or public hook
  */
-function add_ajax_actions( $actions = array(), $nopriv = false ) {
+function add_ajax_actions( $actions, $nopriv = false ) {
 	$prefix = $nopriv ? 'wp_ajax_nopriv_' : 'wp_ajax_';
 	foreach ( $actions as $action ) {
 		add_action( $prefix . $action, $action );
@@ -671,16 +671,16 @@ function RPG_creator() {
 	wp_enqueue_script( 'jsplumb', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/jsplumb.js' ), array(), '', false );
 
 	wp_enqueue_style( 'digimem-rpg-widget-admin-style', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/css/stylesheet.css' ) );
-	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array('jsplumb'), false, false );
+	wp_enqueue_script( 'adjacency-list', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/adjacency-list.js' ), array( 'jsplumb' ), false, false );
 	wp_enqueue_script( 'digimem-rpg-widget', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/app.js' ), array(
 		'vue',
 		'adjacency-list',
 		'jquery',
-        'jsplumb'
+		'jsplumb'
 	), '1.0', true );
 	wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/e4527517d1.js' );
 	$data = get_option( 'rpg_options' );
-    wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
+	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
 	?>
     <h1>RPG Editor</h1>
     <div id="container">
@@ -718,7 +718,8 @@ function RPG_creator() {
                 </div>
             </div>
             <passages :zoom="zoomLevel" :show="showEditor" :passages="passages"></passages>
-            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages" :passage-elements="passageElements"></editor>
+            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"
+                    :passage-elements="passageElements"></editor>
             <template @heresData="listen"></template>
         </div>
     </div>
@@ -765,3 +766,37 @@ function hidden_data_input() {
 function rpg_data_callback() {
 	echo '<p>Your settings will be saved automatically.</p>';
 }
+
+function get_saved_components_for_user( $user_id ) {
+	global $wpdb;
+	$result_set    = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT meta_value FROM $wpdb->usermeta WHERE user_id = %d AND meta_key = 'ubc_press_saved_for_later'",
+			$user_id
+		),
+		ARRAY_A );
+	$current_saved = array();
+	if(count($result_set) > 0)
+	    $current_saved = unserialize( $result_set[0]['meta_value'] );
+	return $current_saved;
+
+}
+function submit_score() {
+	$score         = $_POST['score'];
+	$wid           = $_POST['wid'];
+	$widget        = $_POST['type'];
+	$site_id       = get_current_blog_id();
+	$user_id       = get_current_user_id();
+	// User must be signed in to save the score
+	if($user_id !== 0) {
+		$current_saved = get_saved_components_for_user( $user_id );
+		$current_saved[ $site_id ][ $wid ] = array( 'when' => time(), 'widgetType' => $widget, 'score' => $score );
+		update_user_meta( $user_id, 'ubc_press_saved_for_later', $current_saved );
+		echo 'TRUE';
+	} else {
+		echo 'FALSE';
+	}
+	wp_die();
+}
+
+add_ajax_actions(array('submit_score'));
