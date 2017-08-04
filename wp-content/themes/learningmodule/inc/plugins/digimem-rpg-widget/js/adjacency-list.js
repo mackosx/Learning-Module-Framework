@@ -12,14 +12,27 @@ class Node {
 			jsPlumb.ready(() => {
 				conn = this.connect(from, to);
 			});
-			this.edges.push(
-				{
-					id: id,
-					connection: conn
-				});
+			this.edges.push({
+				id: id,
+				connection: conn
+			});
 		}
 	}
 
+	addChildNode(id, conn) {
+		const index = Digraph.indexOfObject(id, this.edges);
+		this.edges.push({
+			id: id,
+			connection: conn
+		});
+	}
+
+	/**
+	 * Establish a connection between two nodes
+	 * @param from Originating DIV element
+	 * @param to DIV element that the arrow will point to
+	 * @returns {*} The jsPlumb Connection object
+	 */
 	connect(from, to) {
 		let conn;
 		conn = jsPlumb.connect({
@@ -36,15 +49,26 @@ class Node {
 		return conn;
 	}
 
+	// Remove the edge attached to node with id
 	removeChild(id) {
 		const index = Digraph.indexOfObject(id, this.edges);
 		if (~index) {
 			jsPlumb.ready(() => {
-				let conn = this.edges[index].connection;
-				jsPlumb.deleteEndpoint(conn.endpoints[0]);
+				//jsPlumb.removeAllEndpoints();
+				this.edges.splice(index, 1);
 			});
-			this.edges.splice(index, 1);
 		}
+	}
+
+	// Remove all edges originating from a node
+	removeAllChildren() {
+		jsPlumb.ready(() => {
+			for (let i = 0; i < this.edges.length; i++) {
+				let conn = this.edges[i].connection;
+			}
+			this.edges.splice(0);
+
+		});
 	}
 
 	numberOfEdges() {
@@ -52,20 +76,23 @@ class Node {
 	}
 
 	toJSON() {
-		// implement json method so we can exclude edge connection
+		// implement json method so we can exclude jsPlumb connection object when converting
 		let copy = {},
 			exclude = {edges: 1};
 		for (let prop in this) {
-			if (!exclude[prop]) {
-				copy[prop] = this[prop];
-			} else if(prop =='edges'){
-				let newEdges = [];
-				for(let i = 0; i < this.edges.length; i++){
-					newEdges.push({id: this.edges[i].id});
+			if (this.hasOwnProperty(prop)) {
+				if (!exclude[prop]) {
+					copy[prop] = this[prop];
+				} else if (prop == 'edges') {
+					let newEdges = [];
+					for (let i = 0; i < this.edges.length; i++) {
+						newEdges.push({id: this.edges[i].id});
+					}
+					copy[prop] = newEdges;
 				}
-				copy[prop] = newEdges;
 			}
 		}
+
 		return copy;
 
 	}
@@ -90,12 +117,16 @@ class Digraph {
 
 	addVertex(data) {
 		this.vertices.push(new Node(data));
+
 	}
 
 	removeVertex(id) {
-		this.removeEdgesTo(id);
 		const index = this.getIndexOf(id);
+		this.removeEdgesTo(id);
 		if (~index) {
+			jsPlumb.ready(() => {
+				jsPlumb.removeAllEndpoints(this.vertices[index].data.element);
+			});
 			this.vertices.splice(index, 1);
 		}
 	}
@@ -111,6 +142,7 @@ class Digraph {
 
 	removeEdgesTo(id) {
 		for (let i = 0; i < this.vertices.length; i++) {
+			// Removes any edges that point to the vertex with id
 			this.vertices[i].removeChild(id)
 		}
 	}
@@ -129,7 +161,6 @@ class Digraph {
 			title: title,
 			desc: desc
 		};
-		console.log(s);
 		document.getElementById('rpg-stories').value = JSON.stringify(s);
 		return JSON.stringify(s);
 	}

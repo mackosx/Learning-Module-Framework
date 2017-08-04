@@ -1,5 +1,3 @@
-let bus = new Vue();
-
 class Passage {
 	constructor(name, desc, top, left, weight, id) {
 		this.name = name;
@@ -19,8 +17,7 @@ Vue.directive('draggable', {
 		el.style.position = 'absolute';
 		// index of selected passage
 		let startX, startY, initialMouseX, initialMouseY;
-		let id = el.attributes['data-i'].value;
-		let index = 0;
+		let index = el.attributes['data-i'].value;
 
 		function mousemove(e) {
 			e.preventDefault();
@@ -29,26 +26,8 @@ Vue.directive('draggable', {
 
 			let validArea = jQuery('.passage-area')[0];
 			let psg = jQuery('.passage-item');
-
-			if (isValidTop(startY + dy, validArea.clientHeight, psg.height()))
-				app.passages.vertices[index].data.top = startY + dy + 'px';
-			if (isValidLeft(startX + dx, validArea.clientWidth, psg.width()))
-				app.passages.vertices[index].data.left = startX + dx + 'px';
-
-
 			return false;
 		}
-
-		function isValidTop(top, limit, height) {
-
-			return top > 0 && top < (limit - height);
-
-		}
-
-		function isValidLeft(left, limit, width) {
-			return left > 0 && left < (limit - width);
-		}
-
 		function mouseup() {
 			document.removeEventListener('mousemove', mousemove);
 			document.removeEventListener('mouseup', mouseup);
@@ -56,8 +35,7 @@ Vue.directive('draggable', {
 
 		el.addEventListener('mousedown', function (e) {
 			e.preventDefault();
-			id = el.attributes['data-i'].value;
-			index = app.passages.getIndexOf(id);
+			index = el.attributes['data-i'].value;
 			startX = el.offsetLeft;
 			startY = el.offsetTop;
 			initialMouseX = e.clientX;
@@ -75,32 +53,30 @@ Vue.component('passages', {
 	template: `
         <div class="passage-area">
             <template v-for="(passage, index) in passages.vertices">
-                <passage :passage="passage.data" :zoom="zoom" :show="show" :index="passage.data.id"
+                <passage :passages="passages" :passage="passage.data" :zoom="zoom" :show="show" :index="passage.data.id"
                          :key="passage.data.id"
-                         v-draggable></passage>
+                ></passage>
             </template>
         </div>
-	`,
-	watch: {
-		passages: function () {
-			// executes whenever passages is updated, after DOM is updated
-		}
-	}
+	`
 });
 //Story Passage component
 Vue.component('passage', {
-	props: ['passage', 'show', 'index', 'zoom'],
+	props: ['passage', 'show', 'index', 'zoom', 'passages'],
 	//language=HTML
 	template: `
-        <div class="passage-item" :class="{ dragged: moving && edit}" @mousedown="mouseDown" @mouseup="moving = false"
-             @mouseleave="moving = edit = false" @mouseenter="edit = true" :data-i="index"
+        <div class="passage-item connect" :class="{ dragged: moving && edit}" @mousedown="mouseDown"
+             @mouseup="moving = false"
+             @mouseleave="moving = edit = false" @mouseenter="edit = true" :data-i="passages.getIndexOf(index)"
              :style="{ top: passage.top, left: passage.left }"
-             v-draggable>
+             >
             <div class="passage-identifier" v-show="passage.isStart == true">
                 <i class="fa fa-rocket" aria-label="The starting passage"></i>
             </div>
             <div class="passage-identifier" v-if="passage.isEnd == true">
                 <i class="fa fa-stop-circle-o" aria-label="The ending passage"></i>
+            </div>
+            <div class="passage-identifier outgoing connect">
             </div>
 
             <div class="passage-content">
@@ -164,12 +140,26 @@ Vue.component('passage', {
 	data: function () {
 		return {
 			edit: false,
-			moving: false
+			moving: false,
 		}
 	},
-	mounted: function () {
+	mounted() {
 		// when rendered
-		bus.$emit('passageCreated', this.$el, this.passage.id);
+		jsPlumb.draggable(jQuery(this.$el), {
+			containment: true
+		});
+		console.log(this.passages.vertices.length);
+		this.passage.element = this.$el;
+		// jsPlumb.ready(() => {
+		// 	let incoming = this.$el;
+		// 	jsPlumb.makeTarget(incoming, {
+		// 		allowLoopback: false
+		// 	});
+		//
+		// 	let outgoing = jQuery(this.$el).children('.passage-identifier.outgoing').get(0);
+		// 	jsPlumb.makeSource(outgoing);
+		// 	console.log(incoming, outgoing);
+		// });
 	},
 
 });
@@ -177,26 +167,26 @@ Vue.component('passage', {
 Vue.component('editor', {
 	//language=HTML
 	template: `
-        <div id="passage-editor-container" v-if="current < passages.size()"
+        <div id="passage-editor-container" v-if="current < passages.size() && ~current"
              v-show="display">
             <transition name="showEditor">
                 <div id="passage-editor">
                     <h3>Edit Passage</h3>
                     <button class="close-editor" @click="hide"><i class="fa fa-times"></i></button>
                     <label for="title-input">Title</label><br/>
-                    <input type="text" id="title-input" maxlength="100" v-model="passages.vertices[current].data.name"/>
+                    <input type="text" id="title-input" maxlength="100" v-model="title"/>
                     <label for="text-input">Text</label><br/>
-                    <textarea id="text-input" v-model="passages.vertices[current].data.desc"
+                    <textarea id="text-input" v-model="text"
                               placeholder="Write your text here..."></textarea>
                     <label for="weight-input">Value</label><br/>
                     <input type="number" min="-100" max="100" id="weight-input"
-                           v-model="passages.vertices[current].data.weight">
+                           v-model="value">
                     <div id="parent-editor">
                         <label>Parents</label>
                         <!--Display current parents-->
                         <template v-for="(parent, pIndex) in passages.vertices">
                             <template v-for="(child, cIndex) in parent.edges">
-                                <ul class="current-parents" v-if="child.id == passages.vertices[current].data.id">
+                                <ul class="current-parents" v-if="child.id == id">
                                     <li class="remove-link">
                                         {{passages.vertices[pIndex].data.name}}
                                         <i class="fa fa-times"></i>
@@ -210,15 +200,16 @@ Vue.component('editor', {
                         <label for="child-select">Children</label>
                         <select id="child-select" @change="selectChild">
                             <option value="">Select A Child</option>
-                            <template v-for="passage in passages.vertices"
-                                      v-if="passage.data.id != passages.vertices[current].data.id	">
+                            <template v-for="passage in passages.vertices">
+                                v-if="passage.data.id != id">
                                 <option :value="passage.data.id">{{passage.data.name}}</option>
                             </template>
                         </select>
                         <ul class="current-children">
-                            <template v-for="child in passages.vertices[current].edges">
+                            <template v-for="child in edges">
                                 <li class="remove-link" @click="removeChild(child.id)">
-                                    {{passages.vertices[passages.getIndexOf(child.id)].data.name}}
+                                    {{passages.vertices[passages.getIndexOf(child.id)] ?
+                                    passages.vertices[passages.getIndexOf(child.id)].data.name : ''}}
                                     <i class="fa fa-times"></i>
                                 </li>
                             </template>
@@ -229,38 +220,63 @@ Vue.component('editor', {
 
         </div>
 	`,
-	props: ['display', 'hide', 'current', 'passages', 'passageElements'],
-	methods: {
-		selectParent(e) {
-			let parentIndex = parseInt(e.target.value);
-			this.passages.addEdge(parentIndex, this.current);
-
+	props: ['display', 'hide', 'current', 'passages'],
+	// Properties that might be undefined when deleting
+	computed: {
+		edges: {
+			get () {
+				if (this.defined()) return this.passages.vertices[this.current].edges;
+			}
 		},
+		id: {
+			get () {
+				if (this.defined()) return this.passages.vertices[this.current].data.id
+			},
+		},
+		title: {
+			get () {
+				if (this.defined()) return this.passages.vertices[this.current].data.name;
+			},
+			set (val) {
+				this.passages.vertices[this.current].data.name = val;
+			}
+		},
+		text: {
+			get () {
+				if (this.defined()) return this.passages.vertices[this.current].data.desc;
+			},
+			set (val) {
+				this.passages.vertices[this.current].data.desc = val;
+			}
+		},
+		value: {
+			get () {
+				if (this.defined()) return this.passages.vertices[this.current].data.weight;
+			},
+			set (val) {
+				this.passages.vertices[this.current].data.weight = val;
+			}
+		}
+	},
+	methods: {
 		selectChild(e) {
 			// add selected edges
-			if(e.target.value != ''){
-				let childId = parseInt(e.target.value);
-				let child, parent;
-				for (let i = 0; i < this.passageElements.length; i++) {
-					let curr = parseInt(this.passageElements[i].id);
-					if (curr === childId){
-						child = this.passageElements[i].el;
-					} else if(curr === parseInt(this.current)){
-						parent = this.passageElements[i].el;
-					}
-				}
+			if (e.target.value != '') {
+				let id = parseInt(e.target.value);
+				let index = this.passages.getIndexOf(id);
+				let childEl = this.passages.vertices[index].data.element;
+				index = this.passages.getIndexOf(this.current);
+				let parentEl = this.passages.vertices[index].data.element;
 				// add the element as an edge
-				this.passages.vertices[this.current].addChild(parent, child, childId);
+				this.passages.vertices[this.current].addChild(parentEl, childEl, id);
 			}
 		},
 		removeChild(childId) {
 			this.passages.vertices[this.current].removeChild(childId);
-
 		},
-		removeParent(child, parent) {
-			this.passages.removeEdge(child, current);
+		defined() {
+			return this.passages.vertices[this.current] != 'undefined';
 		}
-
 	}
 });
 
@@ -289,116 +305,122 @@ function checkStory(previousStory) {
 let previous = typeof previousStory !== 'undefined' ? checkStory(previousStory) : '';
 
 let app = new Vue({
-	el: '#main',
-	data: {
-		zoomLevel: false,
-		passages: previous.data,
-		title: previous.title,
-		desc: previous.desc,
-		isEditing: false,
-		currentPassageEdit: 0,
-		passageElements: []
+		el: '#main',
+		data: {
+			zoomLevel: false,
+			passages: previous.data,
+			title: previous.title,
+			desc: previous.desc,
+			isEditing: false,
+			currentPassageEdit: 0,
 
-	},
-	computed: {
-		zoomClass: function () {
-			return {
-				'fa-search-plus': this.zoomLevel,
-				'fa-search-minus': !this.zoomLevel
+		},
+		computed: {
+			zoomClass: function () {
+				return {
+					'fa-search-plus': this.zoomLevel,
+					'fa-search-minus': !this.zoomLevel
+				}
 			}
-		}
 
-	},
-	methods: {
-		addPassage() {
-			// Set the id of the new passage to one more than the biggest id
-			const len = this.passages.vertices.length;
-			let id = 0;
-			if (this.passages.vertices[len - 1] !== undefined)
-				id = this.passages.vertices[len - 1].data.id + 1;
-			let newPassage = new Passage('Untitled ' + (id + 1), '', '10px', '10px', 0, id);
-			this.passages.addVertex(newPassage);
-			this.showEditor(newPassage.id);
 		},
-		showEditor(id) {
-			this.currentPassageEdit = this.passages.getIndexOf(id);
-			this.isEditing = true;
-		},
-		hideEditor() {
-			//this.currentPassageEdit = -1;
-			this.isEditing = false;
-		},
-		zoom() {
-			this.zoomLevel = !this.zoomLevel;
-			let psg = jQuery('.passage-item');
-			let currWidth = psg.width();
-			let currHeight = psg.height();
-			if (this.zoomLevel) {
-				psg.css('width', currWidth / 2);
-				psg.css('height', currHeight / 2);
-				this.drawArrows();
-			}
-			else {
-				psg.css('width', currWidth * 2);
-				psg.css('height', currHeight * 2);
-			}
-		},
-		connect(from, to) {
-			let conn;
-			conn = jsPlumb.connect({
-				source: from,
-				target: to,
-				anchor: ["Perimeter", {shape: "Square"}],
-				overlays: [
-					["Arrow", {location: 1, width: 15, height: 15, id: 'arrow'}]
-				],
-				endpoints: ['Blank', 'Blank'],
-				connector: ['Bezier', {curviness: 20}],
-				detachable: false
-			});
-			return conn;
-		},
-		drawArrows() {
-			// resets endpoints and draws arrows from scratch
-			jsPlumb.ready(function () {
-				jsPlumb.deleteEveryEndpoint();
-				jsPlumb.draggable(jQuery('.passage-item'));
-				jsPlumb.Defaults.MaxConnections = 5;
-			});
-			for (let i = 0; i < this.passageElements.length; i++) {
-				let el = this.passageElements[i];
-				let index = this.passages.getIndexOf(el.id);
-				for (let j = 0; j < this.passages.vertices[index].edges.length; j++) {
-					let edgeId = this.passages.vertices[index].edges[j].id;
-					for (let k = 0; k < this.passageElements.length; k++) {
-						let childEl = this.passageElements[k];
-						if (edgeId == childEl.id) {
+		methods: {
+			addPassage() {
+				// Set the id of the new passage to one more than the biggest id
+				const len = this.passages.vertices.length;
+				let id = 0;
+				if (this.passages.vertices[len - 1] !== undefined)
+					id = this.passages.vertices[len - 1].data.id + 1;
+				let newPassage = new Passage('Untitled ' + (id + 1), '', '10px', '10px', 0, id);
+				this.passages.addVertex(newPassage);
+				//this.showEditor(newPassage.id);
+			},
+			showEditor(id) {
+				this.currentPassageEdit = this.passages.getIndexOf(id);
+				this.isEditing = true;
+			},
+			hideEditor() {
+				//this.currentPassageEdit = -1;
+				this.isEditing = false;
+			},
+			zoom() {
+				this.zoomLevel = !this.zoomLevel;
+				let psg = jQuery('.passage-item');
+				let currWidth = psg.width();
+				let currHeight = psg.height();
+				if (this.zoomLevel) {
+					psg.css('width', currWidth / 2);
+					psg.css('height', currHeight / 2);
+					this.drawArrows();
+				}
+				else {
+					psg.css('width', currWidth * 2);
+					psg.css('height', currHeight * 2);
+				}
+			},
+			connect(from, to) {
+				let conn;
+				conn = jsPlumb.connect({
+					source: from,
+					target: to,
+				});
+				return conn;
+			},
+			drawArrows() {
+				// resets endpoints and draws arrows from scratch based on edge array
+				jsPlumb.ready(function () {
+					jsPlumb.deleteEveryEndpoint();
+				});
+				for (let i = 0; i < this.passages.vertices.length; i++) {
+					let el = this.passages.vertices[i].data.element;
+					for (let j = 0; j < this.passages.vertices[i].edges.length; j++) {
+						let edgeId = this.passages.vertices[i].edges[j].id;
+						let connectingEdgeIndex = this.passages.getIndexOf(edgeId);
+						let childEl = this.passages.vertices[connectingEdgeIndex].data.element;
+						if (edgeId === this.passages.vertices[connectingEdgeIndex].data.id) {
 							jsPlumb.ready(() => {
-								this.passages.vertices[index].edges[j].connection = this.connect(el.el, childEl.el);
+								this.passages.vertices[i].edges[j].connection = this.connect(el, childEl);
 							});
 
 						}
 					}
 				}
 			}
+		},
+		created: function () {
+			jsPlumb.ready(function () {
+				// Set up defaults for nice arrows with mostly straight lines
+				jsPlumb.importDefaults({
+					Overlays: [
+						["Arrow", {location: 1, width: 15, height: 15, id: 'arrow'}]
+					],
+					Endpoints: ['Blank', 'Blank'],
+					Connector: ['Bezier', {curviness: 20}],
+					MaxConnections: 5,
+					Anchor: ["Perimeter", {shape: "Square"}],
+
+				});
+				// jsPlumb.bind('connection', function (info, ev) {
+				// 	// Check if not from mouse event, means initial setup connections
+				// 	let sourceIndex = parseInt(info.source.parentElement.attributes['data-i'].value);
+				// 	let targetIndex = parseInt(info.target.attributes['data-i'].value);
+				// 	let targetId = app.passages.vertices[targetIndex].data.id;
+				// 	app.passages.vertices[sourceIndex].addChildNode(targetId, info.connection);
+				// });
+				// jsPlumb.bind('connectionDetached', function (info, ev) {
+				// 	let sourceIndex = parseInt(info.source.parentElement.attributes['data-i'].value);
+				// 	let targetIndex = parseInt(info.target.attributes['data-i'].value);
+				// 	let targetId = app.passages.vertices[targetIndex].data.id;
+				// 	app.passages.vertices[sourceIndex].removeChild(targetId);
+				// });
+			});
+		},
+		mounted: function () {
+			this.drawArrows();
 		}
 
-	},
-	created: function () {
-		let p = this;
-		// create array of refs to html objects corresponding to passages
-		bus.$on('passageCreated', (div, id) => {
-			this.passageElements.push({
-				el: div,
-				id: id
-			});
-			if (this.passageElements.length === this.passages.vertices.length) {
-				this.drawArrows();
-			}
-		});
-	},
-
-});
+	})
+;
 
 jQuery(document).ready(function ($) {
 	let saved = false;

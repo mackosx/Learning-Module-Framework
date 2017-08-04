@@ -22,22 +22,24 @@ $no_priv_action_array = array(
  */
 function check_correct_submission() {
 	global $wpdb;
-	$options      = $wpdb->prefix . 'options';
-	$wid          = $_POST['wid'];
-	$val          = $_POST['value'];
-	$quiz_options = $wpdb->get_results( "SELECT option_value FROM $options WHERE option_name = 'widget_quiz'", ARRAY_A );
-	$quiz         = $quiz_options[0]['option_value'];
-	$quiz         = unserialize( $quiz );
+	$options = $wpdb->prefix . 'options';
+	$wid     = $_POST['wid'];
+	$val     = $_POST['value'];
+	$quiz    = get_option( 'widget_quiz' );
+	$score = 0;
 	// Give msg based on selection
-	if ( $val == $quiz['isCorrect'] ) {
+	if ( $val == $quiz[$wid]['isCorrect'] ) {
+		// Send score to database.
+		$score = 1;
 		echo "<p class='correct'>Correct</p>";
 	} else {
 		echo "<p class='wrong'>Sorry, that was incorrect.</p>";
 	}
+	submit_score( $score, $wid, 'quiz' );
+
 	wp_die();
 }
 
 
-
-add_ajax_actions($admin_action_array, false);
-add_ajax_actions($no_priv_action_array, true);
+add_ajax_actions( $admin_action_array, false );
+add_ajax_actions( $no_priv_action_array, true );

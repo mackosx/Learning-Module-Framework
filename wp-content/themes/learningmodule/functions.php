@@ -683,6 +683,7 @@ function RPG_creator() {
 	wp_localize_script( 'digimem-rpg-widget', 'previousStory', $data );
 	?>
     <h1>RPG Editor</h1>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <div id="container">
         <div id="main">
             <svg id="svg-grid" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
@@ -718,8 +719,7 @@ function RPG_creator() {
                 </div>
             </div>
             <passages :zoom="zoomLevel" :show="showEditor" :passages="passages"></passages>
-            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"
-                    :passage-elements="passageElements"></editor>
+            <editor :hide="hideEditor" :display="isEditing" :current="currentPassageEdit" :passages="passages"></editor>
             <template @heresData="listen"></template>
         </div>
     </div>
@@ -776,27 +776,43 @@ function get_saved_components_for_user( $user_id ) {
 		),
 		ARRAY_A );
 	$current_saved = array();
-	if(count($result_set) > 0)
-	    $current_saved = unserialize( $result_set[0]['meta_value'] );
+	if ( count( $result_set ) > 0 ) {
+		$current_saved = unserialize( $result_set[0]['meta_value'] );
+	}
+
 	return $current_saved;
 
 }
-function submit_score() {
-	$score         = $_POST['score'];
-	$wid           = $_POST['wid'];
-	$widget        = $_POST['type'];
-	$site_id       = get_current_blog_id();
-	$user_id       = get_current_user_id();
+
+function submit_score( $score = 0.0, $wid = 0, $widget = '' ) {
+	// Use post values if they exist, otherwise will default to passed in parameters.
+	if ( isset( $_POST['score'] ) ) {
+		$score = $_POST['score'];
+	}
+	// Currently using widget type in place of post id
+	if ( isset( $_POST['type'] ) ) {
+		$widget = $_POST['type'];
+	}
+
+	$site_id = get_current_blog_id();
+	$user_id = get_current_user_id();
 	// User must be signed in to save the score
-	if($user_id !== 0) {
+	if ( $user_id !== 0 ) {
 		$current_saved = get_saved_components_for_user( $user_id );
-		$current_saved[ $site_id ][ $wid ] = array( 'when' => time(), 'widgetType' => $widget, 'score' => $score );
+		if(!isset($current_saved[ $site_id ][ $widget ]))
+		    $current_saved[ $site_id ][ $widget ] = array();
+		array_push($current_saved[ $site_id ][ $widget ], array( 'when' => time(), 'score' => $score ));
 		update_user_meta( $user_id, 'ubc_press_saved_for_later', $current_saved );
 		echo 'TRUE';
 	} else {
 		echo 'FALSE';
 	}
-	wp_die();
+	if ( isset( $_POST['score'] ) ) {
+	    // Function was called via AJAX, so we need to call wp_die.
+		wp_die();
+	}
 }
 
-add_ajax_actions(array('submit_score'));
+add_ajax_actions( array( 'submit_score' ) );
+add_ajax_actions( array( 'submit_score' ), true );
+

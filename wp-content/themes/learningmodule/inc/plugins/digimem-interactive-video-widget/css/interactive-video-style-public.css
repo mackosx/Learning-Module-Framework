@@ -1,10 +1,10 @@
-.correct {
+.video-question-correct {
     color: darkgreen;
     font-weight: bold;
     font-size: 2em;
 }
 
-.wrong {
+.video-question-wrong {
     color: darkred;
     font-weight: bold;
     font-size: 2em;

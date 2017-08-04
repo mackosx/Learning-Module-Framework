@@ -71,6 +71,7 @@
 
     }
     function gameOver(score) {
+    	score = score / maxScore;
 	    // Send score to db as AJAX
 	    $.ajax({
 		    type: 'POST',

@@ -36,6 +36,22 @@
     line-height: 2em;
 }
 
+.passage-identifier.outgoing:hover{
+    box-shadow: 0 0 5px #4286f4;
+    background-color: #4286f4;
+}
+.passage-item .passage-identifier.outgoing{
+    right: calc(50% - 0.5em);
+    height: 1em;
+    width: 1em;
+    border-radius: 0.5em;
+}
+
+.passage-identifier.incoming:hover{
+    box-shadow: 0 0 5px #d8393a;
+    background-color: #d8393a;
+}
+
 .passage-item h2 {
     font-size: 1.2em;
     color: white;

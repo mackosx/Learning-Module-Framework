@@ -19,3 +19,23 @@
 .quiz-widget-question-area{
     position: relative;
 }
+.quizwidget .correct {
+    color: darkgreen;
+    font-weight: bold;
+    font-size: 2em;
+    position: relative;
+    margin: 0;
+}
+
+.quizwidget .wrong {
+    color: darkred;
+    font-weight: bold;
+    font-size: 2em;
+    position: relative;
+    margin: 0;
+
+}
+/*.quizwidget .correct,*/
+/*.quizwidget .wrong{*/
+    /*margin-bottom: 2em;*/
+/*}*/

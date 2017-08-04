@@ -410,7 +410,11 @@ function get_question_table( $title, $quizId, $questionCount, $question, $time =
 }
 
 function answer_video_question() {
-	// do something with submission information
+	if($_POST['correct'] == 'true'){
+	   echo 'true';
+    } else {
+	    echo 'false';
+    }
 
 	wp_die();
 }
