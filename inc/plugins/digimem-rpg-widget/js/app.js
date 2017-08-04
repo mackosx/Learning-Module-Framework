@@ -26,6 +26,10 @@ Vue.directive('draggable', {
 
 			let validArea = jQuery('.passage-area')[0];
 			let psg = jQuery('.passage-item');
+
+			app.passages.vertices[index].data.top = startY + dy + 'px';
+			app.passages.vertices[index].data.left = startX + dx + 'px';
+
 			return false;
 		}
 		function mouseup() {
@@ -69,21 +73,17 @@ Vue.component('passage', {
              @mouseup="moving = false"
              @mouseleave="moving = edit = false" @mouseenter="edit = true" :data-i="passages.getIndexOf(index)"
              :style="{ top: passage.top, left: passage.left }"
-             >
+             v-draggable>
             <div class="passage-identifier" v-show="passage.isStart == true">
                 <i class="fa fa-rocket" aria-label="The starting passage"></i>
             </div>
             <div class="passage-identifier" v-if="passage.isEnd == true">
                 <i class="fa fa-stop-circle-o" aria-label="The ending passage"></i>
             </div>
-            <div class="passage-identifier outgoing connect">
-            </div>
-
             <div class="passage-content">
                 <h2>{{ passage.name }}</h2>
                 <p v-show="!zoom">{{ passage.desc }}</p>
             </div>
-
             <div class="passage-value">
                 {{ passage.weight }}
             </div>
@@ -101,9 +101,7 @@ Vue.component('passage', {
                     <i class="fa fa-trash" title="Delete" aria-label="Delete"></i>
                 </div>
             </div>
-
         </div>
-
 	`,
 	methods: {
 		// Removes start designation from all other passages, then set this passage as start
@@ -149,7 +147,7 @@ Vue.component('passage', {
 			containment: true
 		});
 		console.log(this.passages.vertices.length);
-		this.passage.element = this.$el;
+		this.passage.element = this.$el.id;
 		// jsPlumb.ready(() => {
 		// 	let incoming = this.$el;
 		// 	jsPlumb.makeTarget(incoming, {

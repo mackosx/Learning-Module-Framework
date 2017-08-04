@@ -31,7 +31,13 @@ class RPG_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', empty( $instance['title'] ) ? '' : $instance['title'], $instance, $this->id_base );
 		wp_enqueue_script( 'digimem-rpg-widget-display', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/js/rpg-display.js' ), array( 'vue', 'adjacency-list' ), '1.0', true );
 		wp_enqueue_style( 'digimem-rpg-widget-style', get_theme_file_uri( '/inc/plugins/digimem-rpg-widget/css/display-style.css' ) );
-
+        wp_localize_script(
+		"digimem-rpg-widget-display",
+		"rpg",
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' )
+		)
+	);
 		$options = get_option('rpg_options');
 		$data = json_decode($options['data'], true);
 		$passages = $data['data'];

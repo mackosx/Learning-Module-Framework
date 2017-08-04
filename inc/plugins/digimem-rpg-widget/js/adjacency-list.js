@@ -92,6 +92,7 @@ class Node {
 				}
 			}
 		}
+		console.log(copy);
 
 		return copy;
 
@@ -161,8 +162,10 @@ class Digraph {
 			title: title,
 			desc: desc
 		};
-		document.getElementById('rpg-stories').value = JSON.stringify(s);
-		return JSON.stringify(s);
+		console.log(s);
+		let json = JSON.stringify(s)
+		document.getElementById('rpg-stories').value = json;
+		return json;
 	}
 
 	importFromJSON(story) {

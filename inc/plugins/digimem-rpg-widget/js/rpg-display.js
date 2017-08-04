@@ -11,6 +11,7 @@ Vue.component('passage', {
                     </template>
                 </ul>
                 <div class="end" v-if="current.data.isEnd">
+	                {{sendScoreToDatabase()}}
                     <p>You have completed this section.</p>
                     <p>You scored {{score}} points.</p>
                     <button type="button" @click="again"><p>Play Again</p></button>
@@ -31,6 +32,21 @@ Vue.component('passage', {
 			this.transition = true;
 			this.change(index);
 			this.transition = false;
+		},
+		sendScoreToDatabase(){
+			jQuery.ajax({
+				url: rpg.ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'submit_score',
+					type: 'rpg',
+					score: e.score
+				},
+				success: function(data){
+					console.log('Stored.', e.score);
+				}
+			});
+			return ' ';
 		}
 	}
 });
