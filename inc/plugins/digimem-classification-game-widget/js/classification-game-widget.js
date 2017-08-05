@@ -2,28 +2,33 @@ function addCategory(wid) {
     let btn = jQuery(`#widget-classification-game-${wid}-add-category-button`);
     let numCat = jQuery(`#widget-classification-game-${wid}-numCat`);
     let catToAdd = parseInt(numCat.val()) + 1;
-    jQuery.ajax({
-        url: game.ajaxUrl,
-        type: 'post',
-        data: {
-            action: 'get_new_category',
-            wid: wid,
-            cat: catToAdd
-        },
-        success: function (data) {
-            if(catToAdd === 2) {
-                let delBtn = jQuery(`<button id="widget-classification-game-${wid}-del-cat1" class="button" type="button" onclick="deleteCategory(${wid},1)">Delete Category
+    if(catToAdd > 4){
+        alert('Maximum 4 Categories.');
+        return false;
+    } else {
+	    jQuery.ajax({
+		    url: game.ajaxUrl,
+		    type: 'post',
+		    data: {
+			    action: 'get_new_category',
+			    wid: wid,
+			    cat: catToAdd
+		    },
+		    success: function (data) {
+			    if (catToAdd === 2) {
+				    let delBtn = jQuery(`<button id="widget-classification-game-${wid}-del-cat1" class="button" type="button" onclick="deleteCategory(${wid},1)">Delete Category
                 </button>`);
-                jQuery(`#widget-classification-game-${wid}-cat1`).after(delBtn);
-            }
-            let catField = jQuery(data).hide();
-            //btn.siblings("input").remove();
-            btn.parent().replaceWith(catField);
-            catField.show(400);
-            jQuery(`#widget-classification-game-${wid}-saved`).remove();
+				    jQuery(`#widget-classification-game-${wid}-cat1`).after(delBtn);
+			    }
+			    let catField = jQuery(data).hide();
+			    //btn.siblings("input").remove();
+			    btn.parent().replaceWith(catField);
+			    catField.show(400);
+			    jQuery(`#widget-classification-game-${wid}-saved`).remove();
 
-        }
-    });
+		    }
+	    });
+    }
 }
 function deleteCategory(wid, cat) {
     let categoryContainer = jQuery(`#widget-classification-game-${wid}-del-cat${cat}`).parent();
