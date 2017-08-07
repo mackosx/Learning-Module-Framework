@@ -146,7 +146,6 @@ Vue.component('passage', {
 		jsPlumb.draggable(jQuery(this.$el), {
 			containment: true
 		});
-		console.log(this.passages.vertices.length);
 		this.passage.element = this.$el.id;
 		// jsPlumb.ready(() => {
 		// 	let incoming = this.$el;
@@ -262,17 +261,14 @@ Vue.component('editor', {
 		selectChild(e) {
 			// add selected edges
 			if (e.target.value != '') {
+				console.log('selected');
 				let id = parseInt(e.target.value);
 				let index = this.passages.getIndexOf(id);
 				let childEl = this.passages.vertices[index].data.element;
-				index = this.passages.getIndexOf(this.current);
-				let parentEl = this.passages.vertices[index].data.element;// not defined
+				let parentEl = this.passages.vertices[this.current].data.element;// not defined
 				// add the element as an edge
 				this.passages.vertices[this.current].addChild(parentEl, childEl, id);
-				jQuery('#child-select').prop('selected', function(){
-					console.log(this.defaultSelected)
-					return this.defaultSelected;
-				})
+				jQuery('#child-select').val('');
 			}
 		},
 		removeChild(childId) {
