@@ -3654,7 +3654,7 @@ object {
 
 	.panel-content .wrap {
 		padding-bottom: 4.5em;
-		padding-top: 6em;
+		padding-top: 0;
 	}
 
 	.panel-image {

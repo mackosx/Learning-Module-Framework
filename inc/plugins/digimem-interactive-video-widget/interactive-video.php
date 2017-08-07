@@ -23,6 +23,8 @@ class Interactive_Video_Widget extends WP_Widget {
 	 * @access public
 	 */
 	public function __construct() {
+		global $widget_prefix;
+
 		$widget_ops = array(
 			'classname'                   => 'interactive_video',
 			'description'                 => __( 'Displays videos with interactive quizzes.' ),
@@ -31,7 +33,7 @@ class Interactive_Video_Widget extends WP_Widget {
 		// create db tables to store quiz content
 		create_video_table();
 		$control_ops = array( 'width' => 400, 'height' => 350 );
-		parent::__construct( 'interactive', __( 'Interactive Video' ), $widget_ops, $control_ops );
+		parent::__construct( 'interactive', __( $widget_prefix . 'Interactive Video' ), $widget_ops, $control_ops );
 	}
 
 	public function widget( $args, $instance ) {

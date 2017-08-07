@@ -266,7 +266,7 @@ Vue.component('editor', {
 				let index = this.passages.getIndexOf(id);
 				let childEl = this.passages.vertices[index].data.element;
 				index = this.passages.getIndexOf(this.current);
-				let parentEl = this.passages.vertices[index].data.element;
+				let parentEl = this.passages.vertices[index].data.element;// not defined
 				// add the element as an edge
 				this.passages.vertices[this.current].addChild(parentEl, childEl, id);
 				jQuery('#child-select').prop('selected', function(){

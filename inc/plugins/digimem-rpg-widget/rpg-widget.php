@@ -15,15 +15,15 @@ class RPG_Widget extends WP_Widget {
 	 * @access public
 	 */
 	private $saving = false;
-
 	public function __construct() {
+	    global $widget_prefix;
 		$widget_ops  = array(
 			'classname'                   => 'rpg_widget',
 			'description'                 => __( 'Interactive Role-playing Storylines.' ),
 			'customize_selective_refresh' => true,
 		);
 		$control_ops = array( 'width' => 400, 'height' => 350 );
-		parent::__construct( 'rpg', __( 'RPG' ), $widget_ops, $control_ops );
+		parent::__construct( 'rpg', __( $widget_prefix . 'RPG' ), $widget_ops, $control_ops );
 	}
 
 	public function widget( $args, $instance ) {

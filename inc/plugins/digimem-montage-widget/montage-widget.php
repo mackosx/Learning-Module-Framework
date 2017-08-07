@@ -12,13 +12,15 @@ class Montage_Widget extends WP_Widget {
 	 */
 
 	public function __construct() {
+		global $widget_prefix;
+
 		$widget_ops  = array(
 			'classname'                   => 'widget_montage',
 			'description'                 => __( 'A montage creation widget.' ),
 			'customize_selective_refresh' => true,
 		);
 		$control_ops = array( 'width' => 400, 'height' => 350 );
-		parent::__construct( 'montage', __( 'Montage' ), $widget_ops, $control_ops );
+		parent::__construct( 'montage', __( $widget_prefix . 'Montage' ), $widget_ops, $control_ops );
 	}
 
 	public function widget( $args, $instance ) {

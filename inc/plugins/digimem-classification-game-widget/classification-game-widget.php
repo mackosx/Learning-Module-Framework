@@ -12,13 +12,15 @@ class Classification_Game_Widget extends WP_Widget {
 	 */
 
 	public function __construct() {
+		global $widget_prefix;
+
 		$widget_ops  = array(
 			'classname'                   => 'widget_classification_game',
 			'description'                 => __( 'A classification game with customizable categories and images.' ),
 			'customize_selective_refresh' => true,
 		);
 		$control_ops = array( 'width' => 400, 'height' => 350 );
-		parent::__construct( 'classification-game', __( 'Classification Game' ), $widget_ops, $control_ops );
+		parent::__construct( 'classification-game', __( $widget_prefix . 'Classification Game' ), $widget_ops, $control_ops );
 	}
 
 	public function widget( $args, $instance ) {

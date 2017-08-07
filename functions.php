@@ -222,18 +222,28 @@ add_filter( 'wp_resource_hints', 'learningmodule_resource_hints', 10, 2 );
  */
 function learningmodule_widgets_init() {
 	// loops through all active front page widget sections
-	for ( $i = 1; $i <= wpc_custom_front_sections(); $i ++ ) {
+
+
+
+	$pages = new WP_Query( array(
+		'post_type'      => 'page', // set the post type to page
+		'no_found_rows'  => true, // no pagination necessary so improve efficiency of loop
+	) );
+
+	while($pages->have_posts()){
+	    $pages->the_post();
 		register_sidebar( array(
-			'name'          => __( 'Content Area ' . $i, 'learningmodule' ),
-			'id'            => 'content-area-' . $i,
-			'description'   => __( 'Add widgets here to create content.', 'learningmodule' ),
+			'name'          => __( $pages->post->post_title, 'learningmodule' ),
+			'id'            => 'learning-module-' . get_the_ID(),
+			'description'   => __( 'Add widgets here to create content.' , 'learningmodule' ),
 			'before_widget' => '<div>',
 			'after_widget'  => '</div>',
 			'before_title'  => '<h2 class="widget-title">',
 			'after_title'   => '</h2>',
 		) );
-	}
+    }
 
+	wp_reset_postdata();
 
 }
 
@@ -582,6 +592,8 @@ function add_ajax_actions( $actions, $nopriv = false ) {
 	}
 }
 
+/* Prefix for Widget Names */
+$widget_prefix = 'LM_';
 /*
  * Widget files to be included in learning module theme
  */
@@ -593,76 +605,8 @@ require_once( get_theme_file_path( '/inc/plugins/digimem-rpg-widget/rpg-widget.p
 
 
 /**
- * Badging Section, UNUSED
+ * Initializes the RPG Creator admin page
  */
-function badge_collection() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-	}
-	echo '<div class="wrap">';
-	echo '<h1>Badge Collection</h1>';
-	echo '<p>Display any badges that are offered</p>';
-	echo '</div>';
-}
-
-function issuer_options() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-	}
-	echo '<div class="wrap">';
-	?>
-
-    <form method="post" action="options.php">
-		<?php
-		settings_fields( 'issuer_profile_options' );
-		do_settings_sections( 'badge_issuer_profile' );
-		// Name, Type, Url, Email
-		?>
-        <input name="Submit" class="button button-primary" type="submit"
-               value="<?php esc_attr_e( 'Save Changes' ); ?>"/>
-    </form>
-
-
-	<?php
-
-	echo '</div>';
-}
-
-add_action( 'admin_init', 'issuer_profile_admin_init' );
-function issuer_profile_admin_init() {
-	register_setting( 'issuer_profile_options', 'issuer_profile_options' );
-	add_settings_section( 'issuer_profile', 'Issuer Profile Settings', 'issuer_profile_section_text', 'badge_issuer_profile' );
-	add_settings_field( 'issuer-profile-name', 'Organization Name', 'name_input_setting', 'badge_issuer_profile', 'issuer_profile' );
-	add_settings_field( 'issuer-profile-url', 'Organization URL', 'url_input_setting', 'badge_issuer_profile', 'issuer_profile' );
-	add_settings_field( 'issuer-profile-email', 'Email', 'email_input_setting', 'badge_issuer_profile', 'issuer_profile' );
-
-}
-
-function issuer_profile_section_text() {
-	echo '<p>Main desc of this section here.</p>';
-}
-
-function name_input_setting() {
-	$options = get_option( 'issuer_profile_options' );
-	echo "<input placeholder='e.g. UBC' title='Name of the organization' id=\"issuer-profile-id\" name='issuer_profile_options[name]' size='40' type='text' value='{$options['name']}'/>";
-}
-
-function url_input_setting() {
-	$options = get_option( 'issuer_profile_options' );
-	echo "<input placeholder='e.g. http://www.example.org' title='Main website url of the organization' id=\"issuer-profile-id\" name='issuer_profile_options[url]' size='40' type='text' value='{$options['url']}'/>";
-}
-
-function email_input_setting() {
-	$options = get_option( 'issuer_profile_options' );
-	echo "<input placeholder='e.g. account@example.org' title='Issuing email' id=\"issuer-profile-id\" name='issuer_profile_options[email]' size='40' type='email' value='{$options['email']}'/>";
-}
-
-
-function add_new_badge() {
-
-}
-
-
 function RPG_creator() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
@@ -790,26 +734,27 @@ function submit_score( $score = 0.0, $wid = 0, $widget = '' ) {
 	if ( isset( $_POST['score'] ) ) {
 		$score = $_POST['score'];
 	}
-	// Currently using widget type in place of post id
 	if ( isset( $_POST['type'] ) ) {
 		$widget = $_POST['type'];
 	}
-
+	// Currently using widget type in place of post id
+	$post_id = get_the_ID();
 	$site_id = get_current_blog_id();
 	$user_id = get_current_user_id();
 	// User must be signed in to save the score
 	if ( $user_id !== 0 ) {
 		$current_saved = get_saved_components_for_user( $user_id );
-		if(!isset($current_saved[ $site_id ][ $widget ]))
-		    $current_saved[ $site_id ][ $widget ] = array();
-		array_push($current_saved[ $site_id ][ $widget ], array( 'when' => time(), 'score' => $score ));
+		if ( ! isset( $current_saved[ $site_id ][ $post_id ] ) ) {
+			$current_saved[ $site_id ][ $post_id ] = array();
+		}
+		array_push( $current_saved[ $site_id ][ $post_id ], array( 'when' => time(), 'score' => $score, 'type' => $widget ) );
 		update_user_meta( $user_id, 'ubc_press_saved_for_later', $current_saved );
 		echo 'TRUE';
 	} else {
 		echo 'FALSE';
 	}
 	if ( isset( $_POST['score'] ) ) {
-	    // Function was called via AJAX, so we need to call wp_die.
+		// Function was called via AJAX, so we need to call wp_die.
 		wp_die();
 	}
 }

@@ -16,13 +16,15 @@ class Quiz_Widget extends WP_Widget {
 	 */
     private $saving = false;
 	public function __construct() {
+		global $widget_prefix;
+
 		$widget_ops  = array(
 			'classname'                   => 'widget_quiz',
 			'description'                 => __( 'Multiple choice question.' ),
 			'customize_selective_refresh' => true,
 		);
 		$control_ops = array( 'width' => 400, 'height' => 350 );
-		parent::__construct( 'quiz', __( 'Quiz' ), $widget_ops, $control_ops );
+		parent::__construct( 'quiz', __($widget_prefix . 'Quiz' ), $widget_ops, $control_ops );
 	}
 
 	public $numAnswers = 4;
