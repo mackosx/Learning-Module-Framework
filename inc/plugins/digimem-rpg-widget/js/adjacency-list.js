@@ -54,7 +54,7 @@ class Node {
 		const index = Digraph.indexOfObject(id, this.edges);
 		if (~index) {
 			jsPlumb.ready(() => {
-				//jsPlumb.removeAllEndpoints();
+				jsPlumb.deleteEndpoint(this.edges[index].connection.endpoints[0]);
 				this.edges.splice(index, 1);
 			});
 		}

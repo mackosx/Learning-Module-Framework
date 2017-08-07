@@ -85,7 +85,7 @@ Vue.component('passage', {
                 <p v-show="!zoom">{{ passage.desc }}</p>
             </div>
             <div class="passage-value">
-                {{ passage.weight }}
+                {{ passage.weight > 0 ? '+' + passage.weight : passage.weight }}
             </div>
             <div class="passage-options" :style="{ display: edit == true && moving == false ? 'block':'none' }">
                 <div class="edit-passage-button" @click="show(index)">
@@ -177,10 +177,10 @@ Vue.component('editor', {
                     <textarea id="text-input" v-model="text"
                               placeholder="Write your text here..."></textarea>
                     <label for="weight-input">Value</label><br/>
-                    <input type="number" min="-100" max="100" id="weight-input"
+                    <input type="number" min="-99" max="99" id="weight-input"
                            v-model="value">
                     <div id="parent-editor">
-                        <label>Parents</label>
+                        <label>Passages leading to this one</label>
                         <!--Display current parents-->
                         <template v-for="(parent, pIndex) in passages.vertices">
                             <template v-for="(child, cIndex) in parent.edges">
@@ -195,10 +195,10 @@ Vue.component('editor', {
                     </div>
 
                     <div id="child-editor">
-                        <label for="child-select">Children</label>
+                        <label for="child-select">Choices</label>
                         <select id="child-select" @change="selectChild">
-                            <option value="">Select A Child</option>
-                            <template v-for="passage in passages.vertices">
+                            <option value="" selected>Select A Child</option>
+                            <template v-for="passage in passages.vertices"
                                 v-if="passage.data.id != id">
                                 <option :value="passage.data.id">{{passage.data.name}}</option>
                             </template>
@@ -249,7 +249,9 @@ Vue.component('editor', {
 		},
 		value: {
 			get () {
-				if (this.defined()) return this.passages.vertices[this.current].data.weight;
+				if (this.defined()) {
+						return this.passages.vertices[this.current].data.weight;
+				}
 			},
 			set (val) {
 				this.passages.vertices[this.current].data.weight = val;
@@ -267,6 +269,10 @@ Vue.component('editor', {
 				let parentEl = this.passages.vertices[index].data.element;
 				// add the element as an edge
 				this.passages.vertices[this.current].addChild(parentEl, childEl, id);
+				jQuery('#child-select').prop('selected', function(){
+					console.log(this.defaultSelected)
+					return this.defaultSelected;
+				})
 			}
 		},
 		removeChild(childId) {
@@ -329,7 +335,7 @@ let app = new Vue({
 				let id = 0;
 				if (this.passages.vertices[len - 1] !== undefined)
 					id = this.passages.vertices[len - 1].data.id + 1;
-				let newPassage = new Passage('Untitled ' + (id + 1), '', '10px', '10px', 0, id);
+				let newPassage = new Passage('Untitled ' + (id + 1), '', '80px', '80px', 0, id);
 				this.passages.addVertex(newPassage);
 				//this.showEditor(newPassage.id);
 			},

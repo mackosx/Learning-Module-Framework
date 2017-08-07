@@ -26,7 +26,7 @@
 
 main {
     width: 70%;
-    padding: 10%;
+    padding: 5em 10% 10% 10%;
     margin: 0 auto 0 auto;
     background-color: white;
     max-width: 800px;
@@ -101,10 +101,6 @@ nav a {
 
 nav a:hover {
     background: #eee;
-}
-
-nav a:hover:before {
-    transform: rotate(360deg);
 }
 
 nav a:before {
@@ -257,4 +253,25 @@ p {
 
 .step {
     position: relative;
+}
+img.small-image-left{
+    height: 50%;
+    width: auto;
+    float: right;
+
+}
+img.small-image-right{
+    height: 50%;
+    width: auto;
+    float: left;
+
+}
+
+@media (max-width: 1000px){
+    .two-column .column{
+        width: 100%;
+    }
+    h1{
+        font-size: 2em;
+    }
 }
