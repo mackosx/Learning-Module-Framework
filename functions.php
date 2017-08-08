@@ -709,7 +709,7 @@ function hidden_data_input() {
 }
 
 function rpg_data_callback() {
-	echo '<p>Your settings will be saved automatically.</p>';
+	echo '<p>Remember to save your changes!</p>';
 }
 
 function get_saved_components_for_user( $user_id ) {
@@ -747,8 +747,10 @@ function submit_score( $score = 0.0, $wid = 0, $widget = '' ) {
 		if ( ! isset( $current_saved[ $site_id ][ $post_id ] ) ) {
 			$current_saved[ $site_id ][ $post_id ] = array();
 		}
-		array_push( $current_saved[ $site_id ][ $post_id ], array( 'when' => time(), 'score' => $score, 'type' => $widget ) );
+		$args = array( 'when' => time(), 'score' => $score, 'type' => $widget );
+		array_push( $current_saved[ $site_id ][ $post_id ],  $args);
 		update_user_meta( $user_id, 'ubc_press_saved_for_later', $current_saved );
+		do_action('send_meta', $args);
 		echo 'TRUE';
 	} else {
 		echo 'FALSE';

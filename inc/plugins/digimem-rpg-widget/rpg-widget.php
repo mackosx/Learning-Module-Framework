@@ -41,7 +41,6 @@ class RPG_Widget extends WP_Widget {
 		$options = get_option('rpg_options');
 		$data = json_decode($options['data'], true);
 		$passages = $data['data'];
-		$scoreTotal = 0;
 		$startPassage = null;
 		$foundStart = false;
 		foreach($passages['vertices'] as $passage){
@@ -57,7 +56,9 @@ class RPG_Widget extends WP_Widget {
             <button id="<?=$this->get_field_id('show-button')?>">Start: <?=$data['title']?></button>
             <div class="story-area" id="<?=$this->get_field_id('story-area')?>" style="display: none">
 
-            <?php if(!$foundStart) {
+            <?php
+             // Story must have starting point to begin
+             if(!$foundStart) {
 	            echo '<p>No starting point was found for this story.</p>';
             } else { ?>
             <p><?=$data['desc']?></p>

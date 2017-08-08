@@ -275,3 +275,43 @@ img.small-image-right{
         font-size: 2em;
     }
 }
+code{
+    font-family: "Courier New", Courier, monospace;
+    background-color: rgba(116, 182, 206, 0.1);
+    color: rgb(252, 73, 0);
+    font-weight: bold;
+}
+code.codeblock{
+    display: block;
+    padding: 0.25em 0;
+}
+code.indent1{
+    padding-left: 2em;
+}
+code.indent2{
+    padding-left: 4em;
+}
+code.indent3{
+    padding-left: 6em;
+}
+code.indent4{
+    padding-left: 8em;
+}
+code.comment{
+    color: darkgray;
+}
+#database p{
+    margin: inherit;
+    background-color: inherit;
+}
+em{
+    font-style: italic;
+    color: grey;
+}
+code > a{
+    text-decoration: none;
+    color: #4286f4;
+}
+p code:nth-child(odd){
+    background-color: rgba(138, 215, 239, 0.3);
+}

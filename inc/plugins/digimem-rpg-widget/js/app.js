@@ -261,7 +261,6 @@ Vue.component('editor', {
 		selectChild(e) {
 			// add selected edges
 			if (e.target.value != '') {
-				console.log('selected');
 				let id = parseInt(e.target.value);
 				let index = this.passages.getIndexOf(id);
 				let childEl = this.passages.vertices[index].data.element;
